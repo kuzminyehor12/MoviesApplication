@@ -40,7 +40,6 @@ class Program
         // * set weights per movie property
         // * TF-IDF vs N-gram?
         
-        
         // Algorithm
         // 1. Add a document(movie)
         // 2. Extract terms/n-grams considering type from the document. IMPORTANT! Separate n-grams from terms for TF-IDF vectorization 
