@@ -4,13 +4,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies.Search", "Movies.Sea
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies.Recommendations", "Movies.Recommendations\Movies.Recommendations.csproj", "{90EFB742-DCE4-4C99-89A9-C0D3E342A078}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies.IndexBuilder", "UtilityApps\Movies.IndexBuilder\Movies.IndexBuilder.csproj", "{31E4B92F-F782-46FC-BF7B-A948CB7691C8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies.IndexBuilder", "Utility Apps\Movies.IndexBuilder\Movies.IndexBuilder.csproj", "{31E4B92F-F782-46FC-BF7B-A948CB7691C8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies.Application", "Movies.Application\Movies.Application.csproj", "{2124F491-AE24-4A64-9825-FDE94F80FD1B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies.Infrastructure", "Movies.Infrastructure\Movies.Infrastructure.csproj", "{5DE0591A-DA98-48FC-A089-9CC3B4EDBBAD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies.API", "Movies.API\Movies.API.csproj", "{233C5509-66FA-49F8-B026-69CAF2AA6AE9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies.Core", "Movies.Core\Movies.Core.csproj", "{9B46328E-CB62-4F85-8C16-7A506CF0F61E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,5 +44,9 @@ Global
 		{233C5509-66FA-49F8-B026-69CAF2AA6AE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{233C5509-66FA-49F8-B026-69CAF2AA6AE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{233C5509-66FA-49F8-B026-69CAF2AA6AE9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B46328E-CB62-4F85-8C16-7A506CF0F61E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B46328E-CB62-4F85-8C16-7A506CF0F61E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B46328E-CB62-4F85-8C16-7A506CF0F61E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B46328E-CB62-4F85-8C16-7A506CF0F61E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
