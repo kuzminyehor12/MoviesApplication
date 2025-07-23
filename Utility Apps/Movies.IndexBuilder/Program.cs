@@ -76,7 +76,7 @@ class Program
                 await foreach (var movie in csvReader.GetRecordsAsync<Movie>())
                 {
                     Interlocked.Increment(ref totalCount);
-                    Console.WriteLine($"Processing {movie.Title}");
+                    Console.WriteLine($"Processing {movie.Title} | {movie.ReleaseDate?.ToShortDateString() ?? "[NO DATE]"}");
                 }
             });
             
