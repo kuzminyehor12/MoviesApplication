@@ -10,5 +10,18 @@
     <ItemGroup>
       <Folder Include="Data\" />
     </ItemGroup>
+    
+    <ItemGroup>
+        <Content Include="output\*.csv">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="CsvHelper" Version="33.1.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Movies.Core\Movies.Core.csproj" />
+    </ItemGroup>
 </Project>

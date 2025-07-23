@@ -24,7 +24,7 @@ public class Movie : BaseEntity
     
     public int VoteCount { get; init; }
     
-    public ICollection<TermIndex>? Index { get; init; }
+    public ICollection<TermIndex>? TermIndex { get; init; }
     
-    public ICollection<TermVector>? Vectors { get; init; }
+    public ICollection<TermVector>? TermVectors { get; init; }
 }

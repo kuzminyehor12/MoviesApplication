@@ -8,7 +8,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies.IndexBuilder", "Util
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies.Application", "Movies.Application\Movies.Application.csproj", "{2124F491-AE24-4A64-9825-FDE94F80FD1B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies.Infrastructure", "Movies.Infrastructure\Movies.Infrastructure.csproj", "{5DE0591A-DA98-48FC-A089-9CC3B4EDBBAD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies.Persistence", "Movies.Persistence\Movies.Persistence.csproj", "{5DE0591A-DA98-48FC-A089-9CC3B4EDBBAD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies.API", "Movies.API\Movies.API.csproj", "{233C5509-66FA-49F8-B026-69CAF2AA6AE9}"
 EndProject

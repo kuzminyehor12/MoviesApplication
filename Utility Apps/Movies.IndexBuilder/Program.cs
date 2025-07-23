@@ -1,8 +1,13 @@
-﻿namespace Movies.IndexBuilder;
+﻿using System.Globalization;
+using CsvHelper;
+using CsvHelper.Configuration;
+using Movies.Core.Entities;
+
+namespace Movies.IndexBuilder;
 
 class Program
 {
-    static void Main(string[] args)
+    static async Task Main(string[] args)
     {
         // TODO: Create an utility which takes a data from directory and puts it into an inverted index
         // Index should represent this structure:
@@ -48,6 +53,38 @@ class Program
         // 5. Add a relationship between document and a term with a frequency and a position
         // 6. After all document added compute TF-IDF and place it into document_vectors table
         
-        Console.WriteLine("Hello, World!");
+        Console.WriteLine("Indexing has been started!");
+
+        var csvConfiguration = new CsvConfiguration(CultureInfo.InvariantCulture)
+        {
+            HasHeaderRecord = true
+        };
+        
+        var moviesData = Directory.EnumerateFiles("output", "*.csv");
+        var indexingTasks = new List<Task>();
+
+        int totalCount = 0;
+        
+        foreach (var file in moviesData)
+        {
+            var chunkIndexingTask = Task.Run(async () =>
+            {
+                using var streamReader = File.OpenText(file);
+                using var csvReader = new CsvReader(streamReader, csvConfiguration);
+                csvReader.Context.RegisterClassMap<CsvMovieMap>();
+                
+                await foreach (var movie in csvReader.GetRecordsAsync<Movie>())
+                {
+                    Interlocked.Increment(ref totalCount);
+                    Console.WriteLine($"Processing {movie.Title}");
+                }
+            });
+            
+            indexingTasks.Add(chunkIndexingTask);
+        }
+        
+        await Task.WhenAll(indexingTasks);
+        
+        Console.WriteLine($"Indexing has been completed! {totalCount} documents was indexed.");
     }
 }
