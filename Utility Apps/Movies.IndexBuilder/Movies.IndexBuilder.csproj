@@ -15,13 +15,23 @@
         <Content Include="output\*.csv">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
+        <None Update="appsettings.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="CsvHelper" Version="33.1.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.7" />
+      <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.7" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.7" />
+      <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.7" />
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Configuration\Movies.Configuration\Movies.Configuration.csproj" />
+      <ProjectReference Include="..\..\Database\Design\Movies.Migrations\Movies.Migrations.csproj" />
       <ProjectReference Include="..\..\Movies.Core\Movies.Core.csproj" />
+      <ProjectReference Include="..\..\Movies.Persistence\Movies.Persistence.csproj" />
     </ItemGroup>
 </Project>

@@ -1,12 +1,18 @@
 ﻿using System.Globalization;
-using CsvHelper;
 using CsvHelper.Configuration;
-using Movies.Core.Entities;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Movies.Configuration;
+using Movies.IndexBuilder.Startup;
+using Movies.Migrations;
+using Movies.Persistence.Infrastructure;
 
 namespace Movies.IndexBuilder;
 
-class Program
+static class Program
 {
+    static IConfiguration Configuration => MovieConfigurationManager.Configuration;
+    
     static async Task Main(string[] args)
     {
         // TODO: Create an utility which takes a data from directory and puts it into an inverted index
@@ -52,39 +58,45 @@ class Program
         // 4. Put into terms table
         // 5. Add a relationship between document and a term with a frequency and a position
         // 6. After all document added compute TF-IDF and place it into document_vectors table
-        
-        Console.WriteLine("Indexing has been started!");
 
-        var csvConfiguration = new CsvConfiguration(CultureInfo.InvariantCulture)
+        var serviceProvider = ConfigureServices();
+        
+        var indexBuilderRunner = serviceProvider.GetRequiredService<IndexBuilderRunner>();
+
+        await indexBuilderRunner.StartAsync();
+    }
+
+    private static IServiceProvider ConfigureServices()
+    {
+        var serviceCollection = new ServiceCollection();
+        
+        serviceCollection.AddConfigurations();
+        
+        serviceCollection.AddSingleton(GetMovieDbContext(Configuration.GetConnectionString("MovieDbConnection")));
+        
+        serviceCollection.AddSingleton<IndexBuilderRunner>();
+        
+        return serviceCollection.BuildServiceProvider();
+    }
+
+    private static void AddConfigurations(this IServiceCollection services)
+    {
+        services.AddSingleton<CsvConfiguration>(new CsvConfiguration(CultureInfo.InvariantCulture)
         {
             HasHeaderRecord = true
-        };
+        });
         
-        var moviesData = Directory.EnumerateFiles("output", "*.csv");
-        var indexingTasks = new List<Task>();
-
-        int totalCount = 0;
-        
-        foreach (var file in moviesData)
+        services.Configure<IndexingDataConfiguration>(Configuration.GetSection("IndexingDataConfiguration"));
+    }
+    
+    private static MovieDbContext GetMovieDbContext(string? connectionString)
+    {
+        if (string.IsNullOrEmpty(connectionString))
         {
-            var chunkIndexingTask = Task.Run(async () =>
-            {
-                using var streamReader = File.OpenText(file);
-                using var csvReader = new CsvReader(streamReader, csvConfiguration);
-                csvReader.Context.RegisterClassMap<CsvMovieMap>();
-                
-                await foreach (var movie in csvReader.GetRecordsAsync<Movie>())
-                {
-                    Interlocked.Increment(ref totalCount);
-                    Console.WriteLine($"Processing {movie.Title} | {movie.ReleaseDate?.ToShortDateString() ?? "[NO DATE]"}");
-                }
-            });
-            
-            indexingTasks.Add(chunkIndexingTask);
+            throw new ArgumentException($"Connection string '{connectionString}' not found.");
         }
         
-        await Task.WhenAll(indexingTasks);
-        
-        Console.WriteLine($"Indexing has been completed! {totalCount} documents was indexed.");
+        var options = MovieDbContextOptionsFactory.CreateDbContextOptions(connectionString);
+        return new MovieDbContext(options);
     }
 }

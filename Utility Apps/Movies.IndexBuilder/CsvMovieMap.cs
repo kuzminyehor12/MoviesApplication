@@ -8,7 +8,7 @@ public sealed class CsvMovieMap : ClassMap<Movie>
 {
     public CsvMovieMap()
     {
-        Map(m => m.Id).Name("id").TypeConverter<CsvLongConverter>();
+        Map(m => m.Id).Name("id").TypeConverter<CsvIntConverter>();
         Map(m => m.Title).Name("title");
         Map(m => m.Genres).Name("genres");
         Map(m => m.Overview).Name("overview");

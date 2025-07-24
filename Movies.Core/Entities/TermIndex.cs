@@ -2,9 +2,8 @@
 
 public class TermIndex
 {
-    public required long TermId { get; init; }
-    
-    public required long MovieId { get; init; }
+    public required int TermId { get; init; }
+    public required int MovieId { get; init; }
     
     public float TermFrequency { get; init; }
 

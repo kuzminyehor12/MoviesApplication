@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <UserSecretsId>3af85a34-b1d5-436b-9653-babd4109b7d1</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.7" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.7" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="9.0.7" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.7" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.7" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.7" />
+    </ItemGroup>
+
+</Project>

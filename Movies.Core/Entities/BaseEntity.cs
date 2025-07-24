@@ -2,5 +2,5 @@
 
 public abstract class BaseEntity
 {
-    public required long Id { get; init; }
+    public required int Id { get; init; }
 }

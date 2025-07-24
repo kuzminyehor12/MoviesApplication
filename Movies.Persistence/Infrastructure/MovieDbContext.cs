@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Movies.Core.Entities;
 
 namespace Movies.Persistence.Infrastructure;
 
-public class MovieDbContext : DbContext
+public class MovieDbContext(DbContextOptions<MovieDbContext> options) : DbContext(options)
 {
     public DbSet<Movie> Movies { get; set; }
     
@@ -13,13 +14,9 @@ public class MovieDbContext : DbContext
     
     public DbSet<TermVector> TermVectors { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        base.OnConfiguring(optionsBuilder);
-    }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(MovieDbContext).Assembly);
     }
 }
