@@ -13,7 +13,7 @@ public class MovieDbContext(DbContextOptions<MovieDbContext> options) : DbContex
     public DbSet<TermIndex> TermIndex { get; set; }
     
     public DbSet<TermVector> TermVectors { get; set; }
-
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

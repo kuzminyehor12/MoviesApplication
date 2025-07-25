@@ -1,4 +1,4 @@
-﻿namespace Movies.IndexBuilder.Startup;
+﻿namespace Movies.IndexBuilder.Configurations;
 
 public class IndexingDataConfiguration
 {

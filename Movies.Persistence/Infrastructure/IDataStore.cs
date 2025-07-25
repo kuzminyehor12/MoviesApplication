@@ -1,18 +1,19 @@
 ﻿using System.Linq.Expressions;
-using Movies.Core.Entities;
 
 namespace Movies.Persistence.Infrastructure;
 
-public interface IDataStore<T>
-    where T : BaseEntity
+public interface IDataStore<TEntity>
+    where TEntity : class
 {
-    Task AddAsync(T entity);
+    IQueryable<TEntity> AsQueryable();
     
-    Task AddRangeAsync(IEnumerable<T> entities);
+    Task<TEntity?> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default);
     
-    Task DeleteAsync(T entity);
+    Task<IEnumerable<TEntity>> FilterAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default);
     
-    Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate);
+    Task AddAsync(TEntity entity, CancellationToken cancellationToken = default);
     
-    Task<IEnumerable<T>> FilterAsync(Expression<Func<T, bool>> predicate);
+    Task AddRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default);
+    
+    Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }

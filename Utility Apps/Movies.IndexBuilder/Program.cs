@@ -3,6 +3,7 @@ using CsvHelper.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Movies.Configuration;
+using Movies.IndexBuilder.Configurations;
 using Movies.IndexBuilder.Startup;
 using Movies.Migrations;
 using Movies.Persistence.Infrastructure;
@@ -72,16 +73,25 @@ static class Program
         
         serviceCollection.AddConfigurations();
         
-        serviceCollection.AddSingleton(GetMovieDbContext(Configuration.GetConnectionString("MovieDbConnection")));
+        serviceCollection.AddDatabase();
         
         serviceCollection.AddSingleton<IndexBuilderRunner>();
         
         return serviceCollection.BuildServiceProvider();
     }
 
+    private static void AddDatabase(this IServiceCollection services)
+    {
+        services.AddScoped<MovieDbContext>(_ => GetMovieDbContext(Configuration.GetConnectionString("MovieDbConnection")));
+        
+        services.AddScoped(typeof(IDatabase<>), typeof(Database<>));
+        
+        services.AddSingleton<IDataStoreFactory, DataStoreFactory>();
+    }
+
     private static void AddConfigurations(this IServiceCollection services)
     {
-        services.AddSingleton<CsvConfiguration>(new CsvConfiguration(CultureInfo.InvariantCulture)
+        services.AddSingleton(new CsvConfiguration(CultureInfo.InvariantCulture)
         {
             HasHeaderRecord = true
         });
