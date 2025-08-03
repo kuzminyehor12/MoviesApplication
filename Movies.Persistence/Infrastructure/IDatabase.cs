@@ -10,4 +10,6 @@ public interface IDatabase<TContext>
     Task CreateDatabaseAsync(CancellationToken cancellationToken = default);
     
     Task DropDatabaseAsync(CancellationToken cancellationToken = default);
+    
+    Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }

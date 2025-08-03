@@ -7,6 +7,7 @@ using Movies.IndexBuilder.Configurations;
 using Movies.IndexBuilder.Startup;
 using Movies.Migrations;
 using Movies.Persistence.Infrastructure;
+using Movies.Search;
 
 namespace Movies.IndexBuilder;
 
@@ -74,6 +75,8 @@ static class Program
         serviceCollection.AddConfigurations();
         
         serviceCollection.AddDatabase();
+
+        serviceCollection.AddScoped<ITermExtractor, TermExtractor>();
         
         serviceCollection.AddSingleton<IndexBuilderRunner>();
         

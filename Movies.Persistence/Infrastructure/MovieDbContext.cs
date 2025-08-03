@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Movies.Core.Entities;
 
 namespace Movies.Persistence.Infrastructure;
@@ -18,5 +17,7 @@ public class MovieDbContext(DbContextOptions<MovieDbContext> options) : DbContex
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(MovieDbContext).Assembly);
+        
+        // TODO: add indexes for terms
     }
 }

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Movies.Core.Entities;
 using Movies.IndexBuilder.Configurations;
 using Movies.Persistence.Infrastructure;
+using Movies.Search;
 
 namespace Movies.IndexBuilder.Startup;
 
@@ -20,6 +21,7 @@ public class IndexBuilderRunner(
         {
             throw new Exception("Configuration cannot be found.");
         }
+        
         Console.WriteLine("Cleaning up database...");
         
         await database.DropDatabaseAsync(cancellationToken);
@@ -33,16 +35,6 @@ public class IndexBuilderRunner(
         var moviesData = Directory.EnumerateFiles(
             indexingDataConfiguration.Value.DirectoryPath, 
             indexingDataConfiguration.Value.SearchPattern ?? string.Empty);
-
-        var store = database.Store<Movie>().AsQueryable();
-
-        var ids = store
-            .Where(m => m.VoteAverage > 5)
-            .Where(m => m.VoteCount > 100)
-            .Select(m => m.Id)
-            .ToList();
-        
-        var movies = await database.Store<Movie>().FilterAsync(m => m.VoteAverage > 5, cancellationToken);
         
         var indexingTasks = new List<Task>();
 
@@ -56,13 +48,50 @@ public class IndexBuilderRunner(
                 using var csvReader = new CsvReader(streamReader, csvConfiguration);
                 csvReader.Context.RegisterClassMap<CsvMovieMap>();
                 
+                using var scope = scopeFactory.CreateScope();
+                var scopedDatabase = scope.ServiceProvider.GetRequiredService<IDatabase<MovieDbContext>>();
+                
                 await foreach (var movie in csvReader.GetRecordsAsync<Movie>(cancellationToken))
                 {
-                    using var scope = scopeFactory.CreateScope();
-                    var scopedDbContext = scope.ServiceProvider.GetRequiredService<MovieDbContext>();
+                    // Step 0: extract terms
+                    // Fields: title(n-grams + exact match), overview, keywords, genres, cast members, crew member
+                    // Step 1: do stemming
+                    // Step 2: remove stop words
+                    // Step 3: create n-grams
+                    // Step 4: add terms to TermIndex table
+                    await scopedDatabase.Store<Movie>().AddAsync(movie, cancellationToken);
+                    
+                    using var transientScope = scopeFactory.CreateScope();
+                    var termExtractor = transientScope.ServiceProvider.GetRequiredService<ITermExtractor>();
+
+                    var terms = termExtractor.Extract(movie.Title, withNgrams: true, includeWholeString: true);
+
+                    foreach (var term in terms)
+                    {
+                        var entity = new Term
+                        {
+                            TermText = term.Term,
+                            TermType = term.Type
+                        };
+                        
+                        await scopedDatabase.Store<Term>().AddAsync(entity, cancellationToken);
+
+                        var termIndex = new TermIndex
+                        {
+                            TermId = entity.Id,
+                            MovieId = movie.Id,
+                        };
+
+                        await scopedDatabase.Store<TermIndex>().AddAsync(termIndex, cancellationToken);
+                    }
+                    
                     Interlocked.Increment(ref totalCount);
                     Console.WriteLine($"Processing {movie.Title} | {movie.ReleaseDate?.ToShortDateString() ?? "[NO DATE]"}");
                 }
+
+                // Step 5: 
+                // add tf-idf score to TermVector table
+                await scopedDatabase.SaveChangesAsync(cancellationToken);
             }, cancellationToken);
             
             indexingTasks.Add(chunkIndexingTask);

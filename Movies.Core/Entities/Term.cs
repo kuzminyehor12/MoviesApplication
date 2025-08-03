@@ -5,6 +5,8 @@ namespace Movies.Core.Entities;
 public class Term : BaseEntity
 {
     public required string TermText { get; init; }
+
+    public required TermType TermType { get; init; } = TermType.WholeWord;
     
     public ICollection<TermIndex>? Index { get; init; }
     

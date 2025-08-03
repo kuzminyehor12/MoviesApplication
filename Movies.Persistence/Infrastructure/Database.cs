@@ -35,4 +35,9 @@ public class Database<TContext>(
     {
         await dbContext.Database.EnsureDeletedAsync(cancellationToken);
     }
+
+    public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
 }
