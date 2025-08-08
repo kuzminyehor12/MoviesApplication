@@ -19,7 +19,7 @@ public class Database<TContext>(
             return cachedStore as IDataStore<TEntity> ?? throw new InvalidCastException($"Cannot use cached object as {typeof(IDataStore<TEntity>).Name})");
         }
         
-        var store = dataStoreFactory.CreateStore<TEntity>();
+        var store = dataStoreFactory.CreateStore<TEntity>(); 
         
         _cachedStores.Add(typeName, store);
         

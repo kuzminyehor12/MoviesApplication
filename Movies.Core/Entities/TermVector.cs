@@ -2,11 +2,19 @@
 
 namespace Movies.Core.Entities;
 
-public class TermVector
+public class TermVector : BaseEntity<(int MovieId, int TermId)>
 {
-    public required int MovieId { get; init; }
+    public int TermId
+    {
+        get => Id.TermId;
+        init => Id = (value, MovieId);
+    }
     
-    public required int TermId { get; init; }
+    public int MovieId
+    {
+        get => Id.MovieId;
+        init => Id = (TermId, value);
+    }
     
     public required FieldType FieldType { get; init; }
     

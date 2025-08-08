@@ -1,6 +1,6 @@
 ﻿namespace Movies.Core.Entities;
 
-public class CastMember : BaseEntity
+public class CastMember : BaseEntity<int>
 {
     public string? Character { get; init; }
     

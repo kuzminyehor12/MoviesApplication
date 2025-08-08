@@ -62,24 +62,30 @@ public class IndexBuilderRunner(
                     await scopedDatabase.Store<Movie>().AddAsync(movie, cancellationToken);
                     
                     using var transientScope = scopeFactory.CreateScope();
-                    var termExtractor = transientScope.ServiceProvider.GetRequiredService<ITermExtractor>();
+                    var termExtractor = transientScope.ServiceProvider.GetRequiredService<ITokenExtractor>();
 
-                    var terms = termExtractor.Extract(movie.Title, withNgrams: true, includeWholeString: true);
+                    var tokens = termExtractor.Extract(movie.Title, useNgrams: true, includeWholeString: true);
+                            // .Union(termExtractor.Extract(movie.Overview ?? string.Empty))
+                            // .Union(termExtractor.ExtractFromCollection(movie.Keywords.Select(k => k.Name), includeWholeStringPerItem: true))
+                            // .Union(termExtractor.ExtractFromCollection(movie.Genres.Select(g => g.Name)))
+                            // .Union(termExtractor.ExtractFromCollection(movie.CastMembers.Select(cast => cast.Name), includeWholeStringPerItem: true))
+                            // .Union(termExtractor.ExtractFromCollection(movie.Keywords.Select(crew => crew.Name), includeWholeStringPerItem: true));
 
-                    foreach (var term in terms)
+                    foreach (var token in tokens)
                     {
-                        var entity = new Term
+                        var term = new Term
                         {
-                            TermText = term.Term,
-                            TermType = term.Type
+                            TermText = token.Term,
+                            TermType = token.Type,
                         };
                         
-                        await scopedDatabase.Store<Term>().AddAsync(entity, cancellationToken);
+                        await scopedDatabase.Store<Term>().AddAsync(term, cancellationToken);
 
                         var termIndex = new TermIndex
                         {
-                            TermId = entity.Id,
-                            MovieId = movie.Id,
+                            Id = (term.Id, movie.Id),
+                            TermFrequency = token.Frequency,
+                            TermPositions = token.Positions
                         };
 
                         await scopedDatabase.Store<TermIndex>().AddAsync(termIndex, cancellationToken);

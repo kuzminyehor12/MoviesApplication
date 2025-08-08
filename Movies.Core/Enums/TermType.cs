@@ -5,5 +5,5 @@ public enum TermType
     CharactersNgram,
     WordNgram,
     WholeWord,
-    WholeTitle
+    WholeString
 }

@@ -76,7 +76,7 @@ static class Program
         
         serviceCollection.AddDatabase();
 
-        serviceCollection.AddScoped<ITermExtractor, TermExtractor>();
+        serviceCollection.AddScoped<ITokenExtractor, TokenExtractor>();
         
         serviceCollection.AddSingleton<IndexBuilderRunner>();
         

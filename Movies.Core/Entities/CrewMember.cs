@@ -1,6 +1,6 @@
 ﻿namespace Movies.Core.Entities;
 
-public class CrewMember : BaseEntity
+public class CrewMember : BaseEntity<int>
 {
     public required string Job { get; init; }
     

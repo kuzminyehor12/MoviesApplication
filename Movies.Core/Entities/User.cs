@@ -1,6 +1,6 @@
 ﻿namespace Movies.Core.Entities;
 
-public class User : BaseEntity
+public class User : BaseEntity<int>
 {
     
 }

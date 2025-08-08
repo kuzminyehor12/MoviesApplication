@@ -8,6 +8,7 @@ public class TermIndexEntityTypeConfiguration : IEntityTypeConfiguration<TermInd
 {
     public void Configure(EntityTypeBuilder<TermIndex> builder)
     {
+        builder.Ignore(termIndex => termIndex.Id);
         builder.HasKey(termIndex => new { termIndex.TermId, termIndex.MovieId });
     }
 }

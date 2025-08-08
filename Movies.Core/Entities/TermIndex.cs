@@ -1,9 +1,18 @@
 ﻿namespace Movies.Core.Entities;
 
-public class TermIndex
+public class TermIndex : BaseEntity<(int TermId, int MovieId)>
 {
-    public required int TermId { get; init; }
-    public required int MovieId { get; init; }
+    public int TermId
+    {
+        get => Id.TermId;
+        init => Id = (value, MovieId);
+    }
+    
+    public int MovieId
+    {
+        get => Id.MovieId;
+        init => Id = (TermId, value);
+    }
     
     public float TermFrequency { get; init; }
 

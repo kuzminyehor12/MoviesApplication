@@ -1,6 +1,6 @@
 ﻿namespace Movies.Core.Entities;
 
-public abstract class BaseEntity
+public abstract class BaseEntity<TId>
 {
-    public int Id { get; init; }
+    public TId? Id { get; init; } = default(TId);
 }

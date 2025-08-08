@@ -8,6 +8,7 @@ public class TermVectorEntityTypeConfiguration : IEntityTypeConfiguration<TermVe
 {
     public void Configure(EntityTypeBuilder<TermVector> builder)
     {
+        builder.Ignore(termVector => termVector.Id);
         builder.HasKey(termVector => new { termVector.TermId, termVector.MovieId });
     }
 }

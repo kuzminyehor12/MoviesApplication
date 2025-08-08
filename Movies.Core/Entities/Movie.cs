@@ -1,6 +1,6 @@
 ﻿namespace Movies.Core.Entities;
 
-public class Movie : BaseEntity
+public class Movie : BaseEntity<int>
 {
     public required string Title { get; init; }
 

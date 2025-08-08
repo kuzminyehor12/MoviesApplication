@@ -2,7 +2,7 @@
 
 namespace Movies.Core.Entities;
 
-public class Term : BaseEntity
+public class Term : BaseEntity<int>
 {
     public required string TermText { get; init; }
 

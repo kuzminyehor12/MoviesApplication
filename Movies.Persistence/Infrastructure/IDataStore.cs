@@ -25,6 +25,4 @@ public interface IDataStore<TEntity>
         CancellationToken cancellationToken = default);
     
     Task AddAsync(TEntity entity, CancellationToken cancellationToken = default);
-    
-    Task AddRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default);
 }
