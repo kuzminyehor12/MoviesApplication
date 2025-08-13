@@ -1,4 +1,5 @@
 ﻿using CsvHelper.Configuration;
+using CsvHelper.TypeConversion;
 using Movies.Core.Entities;
 using Movies.IndexBuilder.Converters;
 
@@ -10,10 +11,10 @@ public sealed class CsvMovieMap : ClassMap<Movie>
     {
         Map(m => m.Id).Name("id").TypeConverter<CsvIntConverter>();
         Map(m => m.Title).Name("title");
-        Map(m => m.Genres).Name("genres");
+        Map(m => m.Genres).Name("genres").TypeConverter<CsvObjectArrayConverter<Genre[]>>();
         Map(m => m.Overview).Name("overview");
         Map(m => m.Popularity).Name("popularity");
-        Map(m => m.ReleaseDate).Name("release_date");
+        Map(m => m.ReleaseDate).Name("release_date").TypeConverter<DateTimeConverter>();
         Map(m => m.TagLine).Name("tagline");
         Map(m => m.CastMembers).Name("cast").TypeConverter<CsvObjectArrayConverter<CastMember[]>>();
         Map(m => m.CrewMembers).Name("crew").TypeConverter<CsvObjectArrayConverter<CrewMember[]>>();

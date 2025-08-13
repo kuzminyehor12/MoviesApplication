@@ -5,9 +5,9 @@ using Movies.Search.Utils.Extensions;
 
 namespace Movies.Search;
 
-public class TokenCollection : List<Token>
+internal class TokenCollection : List<Token>
 {
-    public TokenCollection()
+    internal TokenCollection()
     {
         
     }
@@ -28,7 +28,7 @@ public class TokenCollection : List<Token>
         
         foreach (var term in dictionary)
         {
-            var frequencyWithPositions = dictionary.FrequencyWithPositions(term);
+            var frequencyWithPositions = type == TermType.WholeWord ? dictionary.FrequencyWithPositions(term) : (1, []);
 
             var token = new Token
             {

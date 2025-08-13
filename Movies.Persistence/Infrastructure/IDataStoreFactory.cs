@@ -1,7 +1,9 @@
-﻿namespace Movies.Persistence.Infrastructure;
+﻿using Microsoft.EntityFrameworkCore;
+using Movies.Core.Entities;
 
-public interface IDataStoreFactory
+namespace Movies.Persistence.Infrastructure;
+
+public interface IDataStoreFactory<TContext> where TContext : DbContext
 {
-    IDataStore<TEntity> CreateStore<TEntity>()
-        where TEntity : class;
+    IDataStore<TEntity> CreateStore<TEntity>() where TEntity : class, IEntity;
 }

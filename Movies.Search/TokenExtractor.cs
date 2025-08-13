@@ -5,18 +5,11 @@ using Movies.Search.Utils.Normalizers;
 
 namespace Movies.Search;
 
-// TODO: write unit tests for this class
 public class TokenExtractor : ITokenExtractor
 {
     public IReadOnlySet<Token> Extract(string text, bool useNgrams = false, bool includeWholeString = false)
     {
-        // TODO: 1. Lowercase
-        // 2. Trim
-        // 3. Remove\Replace punctuations
-        // 4. Normalize apostrophes
-        // 5. Handle Diacritics/Accents
-        
-        if (string.IsNullOrEmpty(text))
+        if (string.IsNullOrWhiteSpace(text))
         {
             return new HashSet<Token>();
         }

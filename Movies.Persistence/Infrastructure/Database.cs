@@ -1,16 +1,17 @@
 ﻿using System.Collections.Concurrent;
 using Microsoft.EntityFrameworkCore;
+using Movies.Core.Entities;
 
 namespace Movies.Persistence.Infrastructure;
 
 public class Database<TContext>(
     TContext dbContext,
-    IDataStoreFactory dataStoreFactory) 
+    IDataStoreFactory<TContext> dataStoreFactory) 
     : IDatabase<TContext> where TContext : DbContext
 {
     private readonly IDictionary<string, object> _cachedStores = new ConcurrentDictionary<string, object>();
     
-    public IDataStore<TEntity> Store<TEntity>() where TEntity : class
+    public IDataStore<TEntity> Store<TEntity>() where TEntity : class, IEntity
     {
         string typeName = typeof(TEntity).Name;
         

@@ -1,5 +1,7 @@
 ﻿using System.Globalization;
 using CsvHelper.Configuration;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Movies.Configuration;
@@ -64,8 +66,21 @@ static class Program
         var serviceProvider = ConfigureServices();
         
         var indexBuilderRunner = serviceProvider.GetRequiredService<IndexBuilderRunner>();
+        
+        Console.WriteLine("Application has started. Ctrl-C to end");
+        
+        CancellationTokenSource cts = new CancellationTokenSource();
+        
+        Console.CancelKeyPress += (sender, eventArgs) =>
+        {
+            Console.WriteLine("Canceling...");
+            cts.Cancel();
+            eventArgs.Cancel = true;
+        };
+        
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
-        await indexBuilderRunner.StartAsync();
+        await indexBuilderRunner.StartAsync(cts.Token);
     }
 
     private static IServiceProvider ConfigureServices()
@@ -87,9 +102,9 @@ static class Program
     {
         services.AddScoped<MovieDbContext>(_ => GetMovieDbContext(Configuration.GetConnectionString("MovieDbConnection")));
         
-        services.AddScoped(typeof(IDatabase<>), typeof(Database<>));
+        services.AddScoped(typeof(IDataStoreFactory<>), typeof(DataStoreFactory<>));
         
-        services.AddSingleton<IDataStoreFactory, DataStoreFactory>();
+        services.AddScoped(typeof(IDatabase<>), typeof(Database<>));
     }
 
     private static void AddConfigurations(this IServiceCollection services)

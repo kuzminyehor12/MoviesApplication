@@ -1,4 +1,5 @@
-﻿using CsvHelper;
+﻿using System.Globalization;
+using CsvHelper;
 using CsvHelper.Configuration;
 using CsvHelper.TypeConversion;
 
@@ -13,7 +14,7 @@ public class CsvIntConverter : DefaultTypeConverter
             return default(int);
         }
 
-        if (double.TryParse(text, out var doubleValue))
+        if (double.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out var doubleValue))
         {
             return Convert.ToInt32(doubleValue);
         }

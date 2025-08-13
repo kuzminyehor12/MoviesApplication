@@ -1,13 +1,14 @@
 ﻿using System.Linq.Expressions;
+using Movies.Core.Entities;
 
 namespace Movies.Persistence.Infrastructure;
 
 public interface IDataStore<TEntity>
-    where TEntity : class
+    where TEntity : IEntity
 {
     IQueryable<TEntity> AsQueryable();
     
-    Task<TEntity?> FirstOrDefaultAsync(
+    Task<TEntity> FirstAsync(
         Expression<Func<TEntity, bool>>? predicate = null, 
         string[]? includeProperties = null,
         CancellationToken cancellationToken = default);
@@ -24,5 +25,11 @@ public interface IDataStore<TEntity>
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
         CancellationToken cancellationToken = default);
     
-    Task AddAsync(TEntity entity, CancellationToken cancellationToken = default);
+    Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default);
+    
+    Task TryAddAsync(TEntity entity, CancellationToken cancellationToken = default);
+    
+    Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default);
+    
+    Task<TEntity> GetOrAddAsync(Expression<Func<TEntity, bool>> getter, Func<TEntity> valueFactory, CancellationToken cancellationToken = default);
 }

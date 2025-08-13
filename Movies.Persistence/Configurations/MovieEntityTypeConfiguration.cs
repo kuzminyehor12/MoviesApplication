@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Movies.Core.Entities;
 
@@ -19,21 +20,33 @@ public class MovieEntityTypeConfiguration : IEntityTypeConfiguration<Movie>
         builder
             .Property(movie => movie.CastMembers)
             .HasColumnName("cast")
-            .HasColumnType("jsonb");
+            .HasColumnType("jsonb")
+            .HasConversion(
+                cast => JsonSerializer.Serialize(cast, JsonSerializerOptions.Default), 
+                json => JsonSerializer.Deserialize<CastMember[]>(json, JsonSerializerOptions.Default) ?? Array.Empty<CastMember>());
         
         builder
             .Property(movie => movie.CrewMembers)
             .HasColumnName("crew")
-            .HasColumnType("jsonb");
+            .HasColumnType("jsonb")
+            .HasConversion(
+                crew => JsonSerializer.Serialize(crew, JsonSerializerOptions.Default), 
+                json => JsonSerializer.Deserialize<CrewMember[]>(json, JsonSerializerOptions.Default) ?? Array.Empty<CrewMember>());
         
         builder
             .Property(movie => movie.Keywords)
             .HasColumnName("keywords")
-            .HasColumnType("jsonb");
+            .HasColumnType("jsonb")
+            .HasConversion(
+                keywords => JsonSerializer.Serialize(keywords, JsonSerializerOptions.Default), 
+                json => JsonSerializer.Deserialize<Keyword[]>(json, JsonSerializerOptions.Default) ?? Array.Empty<Keyword>());
         
         builder
             .Property(movie => movie.Genres)
             .HasColumnName("genres")
-            .HasColumnType("jsonb");
+            .HasColumnType("jsonb")
+            .HasConversion(
+                genres => JsonSerializer.Serialize(genres, JsonSerializerOptions.Default), 
+                json => JsonSerializer.Deserialize<Genre[]>(json, JsonSerializerOptions.Default) ?? Array.Empty<Genre>());;
     }
 }

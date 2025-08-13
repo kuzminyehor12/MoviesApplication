@@ -3,7 +3,7 @@ using Movies.Search.Utils.Normalizers;
 
 namespace Movies.Search.Utils.Generators;
 
-public class NgramTokenGenerator : ITokenGenerator
+internal class NgramTokenGenerator : ITokenGenerator
 {
     public TokenCollection Generate(string text)
     {

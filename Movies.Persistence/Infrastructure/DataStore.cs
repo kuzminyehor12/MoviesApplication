@@ -1,42 +1,46 @@
 ﻿using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using Movies.Core.Entities;
+using Npgsql;
 
 namespace Movies.Persistence.Infrastructure;
 
 public class DataStore<TEntity>(DbContext dbContext) : IDataStore<TEntity>
-    where TEntity : class
+    where TEntity : class, IEntity
 {
     private DbSet<TEntity> DbSet => dbContext.Set<TEntity>();
+    
+    private static readonly SemaphoreSlim _semaphore = new(1, 1);   
     
     public IQueryable<TEntity> AsQueryable()
     {
         return DbSet.AsQueryable();
     }
 
-    public async Task<TEntity?> FirstOrDefaultAsync(
+    public async Task<TEntity> FirstAsync(
         Expression<Func<TEntity, bool>>? predicate = null, 
         string[]? includeProperties = null,
         CancellationToken cancellationToken = default)
     {
-        IQueryable<TEntity> query = AsQueryable();
+        IQueryable<TEntity> query = AsQueryable().AsNoTracking();
 
         query = IncludeProperties(query, includeProperties);
 
         if (predicate != null)
         {
-            return await query.FirstOrDefaultAsync(predicate, cancellationToken);
+            return await query.FirstAsync(predicate, cancellationToken);
         }
 
-        return await query.FirstOrDefaultAsync(cancellationToken);
+        return await query.FirstAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<TEntity>> ListAsync(
+    public async Task<IEnumerable<TEntity>>  ListAsync(
         Expression<Func<TEntity, bool>>? predicate = null, 
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null, 
         string[]? includeProperties = null,
         CancellationToken cancellationToken = default)
     {
-        IQueryable<TEntity> query = AsQueryable();
+        IQueryable<TEntity> query = AsQueryable().AsNoTracking();
         
         query = IncludeProperties(query, includeProperties);
 
@@ -59,7 +63,7 @@ public class DataStore<TEntity>(DbContext dbContext) : IDataStore<TEntity>
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
         CancellationToken cancellationToken = default)
     {
-        IQueryable<TEntity> query = AsQueryable();
+        IQueryable<TEntity> query = AsQueryable().AsNoTracking();
 
         if (predicate != null)
         {
@@ -80,14 +84,48 @@ public class DataStore<TEntity>(DbContext dbContext) : IDataStore<TEntity>
         throw new ArgumentNullException(nameof(projection));
     }
 
-    public async Task AddAsync(TEntity entity, CancellationToken cancellationToken = default)
+    public async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
-        await DbSet.AddAsync(entity, cancellationToken);
+        var entry = await DbSet.AddAsync(entity, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return entry.Entity;
     }
 
-    public async Task AddRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
+    public async Task TryAddAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
-        await DbSet.AddRangeAsync(entities, cancellationToken);
+        try
+        {
+            await AddAsync(entity, cancellationToken);
+        }
+        catch (InvalidOperationException)
+        {
+        }
+    }
+
+    public async Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
+    {
+        return await DbSet.AnyAsync(predicate, cancellationToken);
+    }
+
+    public async Task<TEntity> GetOrAddAsync(Expression<Func<TEntity, bool>> getter, Func<TEntity> valueFactory, CancellationToken cancellationToken = default)
+    {
+        await _semaphore.WaitAsync(cancellationToken);
+
+        try
+        {
+            bool exists = await ExistsAsync(getter, cancellationToken);
+
+            if (exists)
+            {
+                return await FirstAsync(getter, cancellationToken: cancellationToken);
+            }
+
+            return await AddAsync(valueFactory(), cancellationToken);
+        }
+        finally
+        {
+            _semaphore.Release();
+        }
     }
 
     private IQueryable<TEntity> IncludeProperties(IQueryable<TEntity> query, params string[]? includeProperties)

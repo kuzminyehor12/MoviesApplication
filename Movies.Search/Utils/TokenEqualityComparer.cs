@@ -15,7 +15,7 @@ internal class TokenEqualityComparer : IEqualityComparer<Token>
 
     public int GetHashCode(Token obj)
     {
-        return HashCode.Combine(obj.Term, (int)obj.Type, obj.Frequency, obj.Positions);
+        return HashCode.Combine(obj.Term, (int)obj.Type);
     }
     
     public static IEqualityComparer<Token> DefaultComparer { get; } = new TokenEqualityComparer();

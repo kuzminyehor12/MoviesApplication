@@ -3,7 +3,7 @@ using Movies.Search.Utils.Normalizers;
 
 namespace Movies.Search.Utils.Generators;
 
-public class TfIdfTokenGenerator : ITokenGenerator
+internal class TfIdfTokenGenerator : ITokenGenerator
 {
     public TokenCollection Generate(string text)
     {
