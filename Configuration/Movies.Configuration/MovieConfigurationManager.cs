@@ -16,7 +16,7 @@ public static class MovieConfigurationManager
             {
                 return _configuration ??= new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
-                    // .AddJsonFile("appsettings.common.json", optional: false, reloadOnChange: true)
+                    .AddJsonFile("appsettings.common.json", optional: false, reloadOnChange: true)
                     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                     .AddUserSecrets(typeof(MovieConfigurationManager).Assembly)
                     .Build();

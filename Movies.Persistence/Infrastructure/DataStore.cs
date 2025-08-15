@@ -34,13 +34,19 @@ public class DataStore<TEntity>(DbContext dbContext) : IDataStore<TEntity>
         return await query.FirstAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<TEntity>>  ListAsync(
+    public async Task<IList<TEntity>>  ListAsync(
         Expression<Func<TEntity, bool>>? predicate = null, 
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null, 
         string[]? includeProperties = null,
+        bool tracking = false,
         CancellationToken cancellationToken = default)
     {
-        IQueryable<TEntity> query = AsQueryable().AsNoTracking();
+        IQueryable<TEntity> query = AsQueryable();
+
+        if (!tracking)
+        {
+            query = query.AsNoTracking();
+        }
         
         query = IncludeProperties(query, includeProperties);
 
@@ -57,13 +63,19 @@ public class DataStore<TEntity>(DbContext dbContext) : IDataStore<TEntity>
         return await query.ToListAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<TProjection>> ListAsync<TProjection>(
+    public async Task<IList<TProjection>> ListAsync<TProjection>(
         Expression<Func<TEntity, bool>>? predicate = null, 
         Expression<Func<TEntity, TProjection>>? projection = null, 
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
+        bool tracking = false,
         CancellationToken cancellationToken = default)
     {
-        IQueryable<TEntity> query = AsQueryable().AsNoTracking();
+        IQueryable<TEntity> query = AsQueryable();
+        
+        if (!tracking)
+        {
+            query = query.AsNoTracking();
+        }
 
         if (predicate != null)
         {
@@ -91,18 +103,16 @@ public class DataStore<TEntity>(DbContext dbContext) : IDataStore<TEntity>
         return entry.Entity;
     }
 
-    public async Task TryAddAsync(TEntity entity, CancellationToken cancellationToken = default)
+    public async Task BulkAddAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
     {
         await _semaphore.WaitAsync(cancellationToken);
 
         try
         {
-            await AddAsync(entity, cancellationToken);
+            await DbSet.AddRangeAsync(entities, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
         }
-        catch (InvalidOperationException)
-        {
-        }
-        finally
+        finally 
         {
             _semaphore.Release();
         }

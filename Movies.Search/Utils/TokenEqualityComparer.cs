@@ -2,7 +2,7 @@
 
 namespace Movies.Search.Utils;
 
-internal class TokenEqualityComparer : IEqualityComparer<Token>
+public class TokenEqualityComparer : IEqualityComparer<Token>
 {
     public bool Equals(Token? x, Token? y)
     {

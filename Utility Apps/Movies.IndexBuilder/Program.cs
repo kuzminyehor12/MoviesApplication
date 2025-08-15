@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Movies.Configuration;
+using Movies.Configuration.Database;
 using Movies.IndexBuilder.Configurations;
 using Movies.IndexBuilder.Startup;
 using Movies.Migrations;
@@ -98,7 +99,13 @@ static class Program
 
     private static void AddDatabase(this IServiceCollection services)
     {
-        services.AddScoped<MovieDbContext>(_ => GetMovieDbContext(Configuration.GetConnectionString("MovieDbConnection")));
+        services.AddScoped<IEnvironmentConnectionStringFactory, EnvironmentConnectionStringFactory>();
+        
+        services.AddScoped<MovieDbContext>(sp =>
+        {
+            var connectionStringFactory = sp.GetRequiredService<IEnvironmentConnectionStringFactory>();
+            return GetMovieDbContext(connectionStringFactory.GetInactiveDatabaseEnvironment());
+        });
         
         services.AddScoped(typeof(IDataStoreFactory<>), typeof(DataStoreFactory<>));
         
@@ -107,6 +114,8 @@ static class Program
 
     private static void AddConfigurations(this IServiceCollection services)
     {
+        services.AddSingleton(Configuration);
+        
         services.AddSingleton(new CsvConfiguration(CultureInfo.InvariantCulture)
         {
             HasHeaderRecord = true

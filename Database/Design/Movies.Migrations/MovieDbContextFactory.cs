@@ -1,23 +1,20 @@
 ﻿using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using Movies.Configuration;
+using Movies.Configuration.Database;
 using Movies.Persistence.Infrastructure;
 
 namespace Movies.Migrations;
 
-public class MovieDbContextFactory : IDesignTimeDbContextFactory<MovieDbContext>
+public class MovieDbContextFactory(IEnvironmentConnectionStringFactory connectionStringFactory) : IDesignTimeDbContextFactory<MovieDbContext>
 {
-    private const string ConnectionStringName = "MovieDbConnection";
-    
-    private IConfiguration Configuration => MovieConfigurationManager.Configuration;
-    
     public MovieDbContext CreateDbContext(string[] args)
     {
-        var connectionString = Configuration.GetConnectionString(ConnectionStringName);
+        var connectionString = connectionStringFactory.GetInactiveDatabaseEnvironment();
 
         if (string.IsNullOrEmpty(connectionString))
         {
-            throw new InvalidOperationException($"Connection string '{ConnectionStringName}' not found.");
+            throw new InvalidOperationException($"Connection string not found.");
         }
         
         var options = MovieDbContextOptionsFactory.CreateDbContextOptions(connectionString);
