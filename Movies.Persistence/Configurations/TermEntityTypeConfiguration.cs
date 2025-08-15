@@ -12,8 +12,6 @@ public class TermEntityTypeConfiguration  : IEntityTypeConfiguration<Term>
             .Property(term => term.Id)
             .UseIdentityByDefaultColumn();
         
-        builder
-            .HasIndex(term => term.TermText)
-            .IsUnique();
+        builder.HasIndex(term => term.TermText);
     }
 }

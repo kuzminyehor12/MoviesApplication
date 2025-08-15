@@ -93,12 +93,18 @@ public class DataStore<TEntity>(DbContext dbContext) : IDataStore<TEntity>
 
     public async Task TryAddAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
+        await _semaphore.WaitAsync(cancellationToken);
+
         try
         {
             await AddAsync(entity, cancellationToken);
         }
         catch (InvalidOperationException)
         {
+        }
+        finally
+        {
+            _semaphore.Release();
         }
     }
 

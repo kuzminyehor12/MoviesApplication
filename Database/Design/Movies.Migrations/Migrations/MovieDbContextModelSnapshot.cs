@@ -42,6 +42,9 @@ namespace Movies.Migrations.Migrations
                         .HasColumnType("jsonb")
                         .HasColumnName("genres");
 
+                    b.Property<string>("ImdbId")
+                        .HasColumnType("text");
+
                     b.Property<string>("Keywords")
                         .HasColumnType("jsonb")
                         .HasColumnName("keywords");
@@ -52,8 +55,11 @@ namespace Movies.Migrations.Migrations
                     b.Property<double>("Popularity")
                         .HasColumnType("double precision");
 
+                    b.Property<string>("PosterPath")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("ReleaseDate")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("TagLine")
                         .HasColumnType("text");
@@ -93,8 +99,7 @@ namespace Movies.Migrations.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TermText")
-                        .IsUnique();
+                    b.HasIndex("TermText");
 
                     b.ToTable("Terms");
                 });

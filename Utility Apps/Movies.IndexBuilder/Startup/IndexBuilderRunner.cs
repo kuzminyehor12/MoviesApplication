@@ -9,6 +9,7 @@ using Movies.Search;
 
 namespace Movies.IndexBuilder.Startup;
 
+// TODO: rewrite Console logs using ILoggerFactory
 public class IndexBuilderRunner(
     IDatabase<MovieDbContext> database,
     IServiceScopeFactory scopeFactory,
@@ -43,8 +44,6 @@ public class IndexBuilderRunner(
 
             var indexingTasks = new List<Task>();
 
-            int totalCount = 0;
-
             foreach (var file in moviesData)
             {
                 Task chunkIndexingTask = IndexFile(file, cancellationToken);
@@ -53,7 +52,7 @@ public class IndexBuilderRunner(
 
             await Task.WhenAll(indexingTasks);
 
-            Console.WriteLine($"Indexing has been completed! {totalCount} documents was indexed.");
+            Console.WriteLine($"Indexing has been completed! {_totalCount} documents was indexed.");
         }
         catch (OperationCanceledException)
         {
@@ -62,6 +61,7 @@ public class IndexBuilderRunner(
         catch (Exception e)
         {
             Console.WriteLine(e);
+            await database.DropDatabaseAsync(CancellationToken.None);
             Environment.Exit(-1);
         }
     }
@@ -75,10 +75,14 @@ public class IndexBuilderRunner(
              using var streamReader = File.OpenText(file);
              using var csvReader = new CsvReader(streamReader, csvConfiguration);
              csvReader.Context.RegisterClassMap<CsvMovieMap>();
-             using var scope = scopeFactory.CreateScope();
-             var scopedDatabase = scope.ServiceProvider.GetRequiredService<IDatabase<MovieDbContext>>();
+            
+             var parallelOptions = new ParallelOptions
+             {
+                 MaxDegreeOfParallelism = Environment.ProcessorCount, 
+                 CancellationToken = cancellationToken
+             };
              
-             await foreach (var movie in csvReader.GetRecordsAsync<Movie>(cancellationToken))
+             await Parallel.ForEachAsync(csvReader.GetRecordsAsync<Movie>(cancellationToken), parallelOptions, async (movie, ct) =>
              {
                  // Step 0: extract terms
                  // Fields: title(n-grams + exact match), overview, keywords, genres, cast members, crew member
@@ -86,8 +90,10 @@ public class IndexBuilderRunner(
                  // Step 2: remove stop words
                  // Step 3: create n-grams
                  // Step 4: add terms to TermIndex table
+                 using var scope = scopeFactory.CreateScope();
+                 var scopedDatabase = scope.ServiceProvider.GetRequiredService<IDatabase<MovieDbContext>>();
                  
-                 var indexingMovie = await scopedDatabase.Store<Movie>().GetOrAddAsync(m => m.Id == movie.Id, () => movie, cancellationToken);
+                 await scopedDatabase.Store<Movie>().AddAsync(movie, ct);
                  
                  using var transientScope = scopeFactory.CreateScope();
                  var termExtractor = transientScope.ServiceProvider.GetRequiredService<ITokenExtractor>();
@@ -101,26 +107,29 @@ public class IndexBuilderRunner(
                  foreach (var token in tokens)
                  {
                      Term indexingTerm = await scopedDatabase.Store<Term>().GetOrAddAsync(
-                         t => t.TermText == token.Term, 
-                         () => new() { TermText = token.Term, TermType = token.Type }, 
-                         cancellationToken);
+                         t => t.TermText == token.Term && t.TermType == token.Type, 
+                         () => new()
+                         {
+                             TermText = token.Term, 
+                             TermType = token.Type
+                         }, 
+                         ct);
                      
                      var termIndex = new TermIndex
                      {
                          TermId = indexingTerm.Id,
-                         MovieId = indexingMovie.Id,
+                         MovieId = movie.Id,
                          TermFrequency = token.Frequency,
                          TermPositions = token.Positions
                      };
                      
-                     await scopedDatabase.Store<TermIndex>().TryAddAsync(termIndex, cancellationToken);
+                     await scopedDatabase.Store<TermIndex>().AddAsync(termIndex, ct);
                  }
                  
                  Interlocked.Increment(ref _totalCount);
-                 Console.WriteLine($"info: Processing {movie.Title} | {movie.ReleaseDate?.ToShortDateString() ?? "[NO DATE]"}");
-             }
+             });
              // Step 5: 
              // add tf-idf score to TermVector table
-         }, cancellationToken);
+         });
     }
 }

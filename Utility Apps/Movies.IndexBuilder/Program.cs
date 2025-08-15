@@ -77,8 +77,6 @@ static class Program
             cts.Cancel();
             eventArgs.Cancel = true;
         };
-        
-        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
         await indexBuilderRunner.StartAsync(cts.Token);
     }

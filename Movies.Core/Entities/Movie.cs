@@ -24,6 +24,10 @@ public class Movie : BaseEntity<int>
     
     public int VoteCount { get; init; }
     
+    public string? PosterPath { get; init; }
+    
+    public string? ImdbId { get; init; }
+    
     public ICollection<TermIndex>? TermIndex { get; init; }
     
     public ICollection<TermVector>? TermVectors { get; init; }

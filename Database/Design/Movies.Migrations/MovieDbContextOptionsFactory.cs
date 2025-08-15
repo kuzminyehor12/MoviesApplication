@@ -12,7 +12,9 @@ public static class MovieDbContextOptionsFactory
         {
             throw new ArgumentException($"Connection string '{connectionString}' not found.");
         }
-
+        
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+        
         var optionsBuilder = new DbContextOptionsBuilder<MovieDbContext>();
         optionsBuilder.UseNpgsql(connectionString, options => options.MigrationsAssembly(typeof(MovieDbContextFactory).Assembly.FullName));
         optionsBuilder.LogTo(Console.WriteLine, LogLevel.Information);
