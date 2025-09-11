@@ -3,7 +3,7 @@ using Movies.Search.Utils.Normalizers;
 
 namespace Movies.Search.Utils.Generators;
 
-internal class NgramTokenGenerator : ITokenGenerator
+public class NgramTokenGenerator(FieldType fieldType) : ITokenGenerator
 {
     public TokenCollection Generate(string text)
     {
@@ -11,10 +11,10 @@ internal class NgramTokenGenerator : ITokenGenerator
         string normalizedText = normalizer.Normalize(text);
         
         var charNgrams = NgramGenerator.GenerateByCharacters(normalizedText);
-        var ngramCharacterTokens = TokenCollection.Create(TermType.CharactersNgram, charNgrams);
+        var ngramCharacterTokens = TokenCollection.Create(TermType.CharactersNgram, fieldType, charNgrams);
         
         var wordNgrams = NgramGenerator.GenerateByWords(normalizedText);
-        var ngramWordTokens = TokenCollection.Create(TermType.WordNgram, wordNgrams);
+        var ngramWordTokens = TokenCollection.Create(TermType.WordNgram, fieldType, wordNgrams);
         
         return new TokenCollection(ngramCharacterTokens.Concat(ngramWordTokens));
     }

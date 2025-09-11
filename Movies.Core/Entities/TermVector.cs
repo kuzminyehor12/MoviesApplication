@@ -2,7 +2,7 @@
 
 namespace Movies.Core.Entities;
 
-public class TermVector : BaseEntity<(int MovieId, int TermId)>
+public class TermVector : BaseEntity<(int TermId, int MovieId)>
 {
     public int TermId
     {
@@ -18,7 +18,7 @@ public class TermVector : BaseEntity<(int MovieId, int TermId)>
     
     public required FieldType FieldType { get; init; }
     
-    public double Score { get; init; }
+    public double Score { get; set; }
     
     public Movie Movie { get; init; } = null!;
     

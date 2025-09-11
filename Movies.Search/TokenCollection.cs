@@ -5,9 +5,9 @@ using Movies.Search.Utils.Extensions;
 
 namespace Movies.Search;
 
-internal class TokenCollection : List<Token>
+public class TokenCollection : List<Token>
 {
-    internal TokenCollection()
+    public TokenCollection()
     {
         
     }
@@ -22,7 +22,7 @@ internal class TokenCollection : List<Token>
         }
     }
     
-    internal static TokenCollection Create(TermType type, string[] dictionary)
+    internal static TokenCollection Create(TermType type, FieldType fieldType, string[] dictionary)
     {
         TokenCollection tokenCollection = new TokenCollection();
         
@@ -33,7 +33,8 @@ internal class TokenCollection : List<Token>
             var token = new Token
             {
                 Term = term,
-                Type = type,
+                TermType = type,
+                FieldType = fieldType,
                 Frequency = frequencyWithPositions.Frequency,
                 Positions = frequencyWithPositions.Positions
             };

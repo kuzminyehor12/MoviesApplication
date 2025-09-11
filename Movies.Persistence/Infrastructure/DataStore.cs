@@ -1,7 +1,6 @@
 ﻿using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Movies.Core.Entities;
-using Npgsql;
 
 namespace Movies.Persistence.Infrastructure;
 
@@ -12,9 +11,9 @@ public class DataStore<TEntity>(DbContext dbContext) : IDataStore<TEntity>
     
     private static readonly SemaphoreSlim _semaphore = new(1, 1);   
     
-    public IQueryable<TEntity> AsQueryable()
+    public IQueryable<TEntity> AsQueryable(bool tracking = false)
     {
-        return DbSet.AsQueryable();
+        return tracking ? DbSet.AsQueryable() : DbSet.AsNoTracking().AsQueryable();
     }
 
     public async Task<TEntity> FirstAsync(
@@ -96,11 +95,27 @@ public class DataStore<TEntity>(DbContext dbContext) : IDataStore<TEntity>
         throw new ArgumentNullException(nameof(projection));
     }
 
+    public async Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null, CancellationToken cancellationToken = default)
+    {
+        if (predicate is null)
+        {
+            return await DbSet.CountAsync(cancellationToken);
+        }
+        
+        return await DbSet.CountAsync(predicate, cancellationToken);
+    }
+
     public async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         var entry = await DbSet.AddAsync(entity, cancellationToken);
         await dbContext.SaveChangesAsync(cancellationToken);
         return entry.Entity;
+    }
+    
+    public void Update(TEntity entity)
+    {
+        DbSet.Attach(entity);
+        DbSet.Entry(entity).State = EntityState.Modified;
     }
 
     public async Task BulkAddAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
@@ -121,27 +136,6 @@ public class DataStore<TEntity>(DbContext dbContext) : IDataStore<TEntity>
     public async Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
     {
         return await DbSet.AnyAsync(predicate, cancellationToken);
-    }
-
-    public async Task<TEntity> GetOrAddAsync(Expression<Func<TEntity, bool>> getter, Func<TEntity> valueFactory, CancellationToken cancellationToken = default)
-    {
-        await _semaphore.WaitAsync(cancellationToken);
-
-        try
-        {
-            bool exists = await ExistsAsync(getter, cancellationToken);
-
-            if (exists)
-            {
-                return await FirstAsync(getter, cancellationToken: cancellationToken);
-            }
-
-            return await AddAsync(valueFactory(), cancellationToken);
-        }
-        finally
-        {
-            _semaphore.Release();
-        }
     }
 
     private IQueryable<TEntity> IncludeProperties(IQueryable<TEntity> query, params string[]? includeProperties)

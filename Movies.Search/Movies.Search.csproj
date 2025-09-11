@@ -10,4 +10,13 @@
       <ProjectReference Include="..\Movies.Core\Movies.Core.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <Content Include="Data\*">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Porter2StemmerStandard" Version="1.1.0" />
+    </ItemGroup>
 </Project>

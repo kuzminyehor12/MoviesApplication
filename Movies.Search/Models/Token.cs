@@ -6,7 +6,9 @@ public class Token
 {
     public required string Term { get; init; }
     
-    public required TermType Type { get; init; }
+    public required TermType TermType { get; init; }
+    
+    public required FieldType FieldType { get; init; }
     
     public float Frequency { get; init; }
 

@@ -13,14 +13,14 @@ public class EnvironmentConnectionStringFactory(IConfiguration configuration) : 
     public string GetActiveDatabaseEnvironment()
     {
         string activeEnv = GetActiveEnvironmentConfiguration();
-        return configuration.GetConnectionString($"{activeEnv}{DbConnectionSettingNameSuffix}") ??  throw new InvalidOperationException($"{activeEnv}{DbConnectionSettingNameSuffix} not found.");
+        return configuration.GetConnectionString($"{activeEnv}{DbConnectionSettingNameSuffix}") ?? throw new InvalidOperationException($"'{activeEnv}{DbConnectionSettingNameSuffix}' not found.");
     }
 
     public string GetInactiveDatabaseEnvironment()
     {
         string activeEnv = GetActiveEnvironmentConfiguration();
         string inactiveEnv = activeEnv == BlueEnvironment ? GreenEnvironment : BlueEnvironment;
-        return configuration.GetConnectionString($"{inactiveEnv}{DbConnectionSettingNameSuffix}") ??  throw new InvalidOperationException($"{inactiveEnv}{DbConnectionSettingNameSuffix} not found.");
+        return configuration.GetConnectionString($"{inactiveEnv}{DbConnectionSettingNameSuffix}") ?? throw new InvalidOperationException($"'{inactiveEnv}{DbConnectionSettingNameSuffix}' not found.");
     }
 
     private string GetActiveEnvironmentConfiguration()

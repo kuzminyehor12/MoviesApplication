@@ -21,4 +21,27 @@ public static class BatchProcessor
             yield return batch;
         }
     }
+
+    public static async Task BatchAsync<T>(IEnumerable<T> source, int batchSize, Func<IList<T>, Task> action)
+    {
+        int processed = 0;
+        var tasks = new List<Task>();
+        
+        while (true)
+        {
+            var batch = source
+                .Skip(processed)
+                .Take(batchSize)
+                .ToList();
+
+            if (!batch.Any())
+                break;
+            
+            tasks.Add(action(batch));
+            
+            Interlocked.Add(ref processed, batch.Count);
+        }
+        
+        await Task.WhenAll(tasks);
+    }
 }

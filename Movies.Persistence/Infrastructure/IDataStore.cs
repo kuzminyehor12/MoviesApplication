@@ -6,7 +6,7 @@ namespace Movies.Persistence.Infrastructure;
 public interface IDataStore<TEntity>
     where TEntity : IEntity
 {
-    IQueryable<TEntity> AsQueryable();
+    IQueryable<TEntity> AsQueryable(bool tracking = false);
     
     Task<TEntity> FirstAsync(
         Expression<Func<TEntity, bool>>? predicate = null, 
@@ -27,11 +27,13 @@ public interface IDataStore<TEntity>
         bool tracking = false,
         CancellationToken cancellationToken = default);
     
+    Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null, CancellationToken cancellationToken = default);
+    
     Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default);
+    
+    void Update(TEntity entity);
     
     Task BulkAddAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default);
     
     Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default);
-    
-    Task<TEntity> GetOrAddAsync(Expression<Func<TEntity, bool>> getter, Func<TEntity> valueFactory, CancellationToken cancellationToken = default);
 }

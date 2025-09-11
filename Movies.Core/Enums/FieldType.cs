@@ -6,6 +6,7 @@ public enum FieldType
     Overview,
     Genre,
     Keyword,
+    Character,
     Actor,
-    Director
+    Crew
 }

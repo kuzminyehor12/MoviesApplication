@@ -10,12 +10,12 @@ public class TokenEqualityComparer : IEqualityComparer<Token>
         if (x is null) return false;
         if (y is null) return false;
         if (x.GetType() != y.GetType()) return false;
-        return x.Term == y.Term && x.Type == y.Type;
+        return x.Term == y.Term && x.TermType == y.TermType;
     }
 
     public int GetHashCode(Token obj)
     {
-        return HashCode.Combine(obj.Term, (int)obj.Type);
+        return HashCode.Combine(obj.Term, (int)obj.TermType);
     }
     
     public static IEqualityComparer<Token> DefaultComparer { get; } = new TokenEqualityComparer();
