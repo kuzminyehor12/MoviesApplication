@@ -1,8 +1,8 @@
-using Movies.Core.Entities;
+using Movies.Application.Models;
 
 namespace Movies.Application.Abstractions;
 
 public interface ISuggestionService
 {
-    Task<IEnumerable<Movie>> GetSuggestionsAsync(string query, CancellationToken cancellationToken);
+    Task<IEnumerable<Suggestion>> GetSuggestionsAsync(string query, CancellationToken cancellationToken);
 }

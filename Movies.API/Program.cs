@@ -5,6 +5,7 @@ using Movies.Configuration.Database;
 using Movies.Migrations;
 using Movies.Persistence.Infrastructure;
 using Movies.Search;
+using Movies.Search.Utils.Normalizers;
 
 namespace Movies.API;
 
@@ -18,7 +19,10 @@ public static class Program
 
         builder.Services.AddControllers();
 
+        builder.Services.AddTransient<ITextNormalizer, DefaultNormalizer>();
+        
         builder.Services.AddScoped<IFuzzySearchService, FuzzySearchService>();
+        builder.Services.AddScoped<ISuggestionService, SuggestionsService>();
         builder.Services.AddScoped<ITokenExtractor, TokenExtractor>();
         
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

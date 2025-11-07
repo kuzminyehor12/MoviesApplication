@@ -6,7 +6,7 @@ using Movies.Core.Entities;
 
 namespace Movies.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/search")]
     [ApiController]
     public class SearchController : ControllerBase
     {

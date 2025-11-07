@@ -31,7 +31,7 @@ public class TokenCollection : List<Token>
         {
             var frequencyWithPositions = type == TermType.WholeWord || type.IsNgram() 
                 ? dictionary.FrequencyWithPositions(term) 
-                : (1, []);
+                : (1, [0]);
 
             var token = new Token
             {
