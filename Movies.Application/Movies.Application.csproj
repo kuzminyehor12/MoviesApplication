@@ -6,4 +6,10 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Movies.Core\Movies.Core.csproj" />
+      <ProjectReference Include="..\Movies.Persistence\Movies.Persistence.csproj" />
+      <ProjectReference Include="..\Movies.Search\Movies.Search.csproj" />
+    </ItemGroup>
+
 </Project>

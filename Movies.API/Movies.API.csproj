@@ -8,6 +8,15 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.3"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.7" />
+        <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Configuration\Movies.Configuration\Movies.Configuration.csproj" />
+      <ProjectReference Include="..\Database\Design\Movies.Migrations\Movies.Migrations.csproj" />
+      <ProjectReference Include="..\Movies.Application\Movies.Application.csproj" />
     </ItemGroup>
 
 </Project>

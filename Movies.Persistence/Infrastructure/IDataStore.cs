@@ -31,9 +31,11 @@ public interface IDataStore<TEntity>
     
     Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default);
     
-    void Update(TEntity entity);
+    Task UpdateAsync(TEntity entity, CancellationToken cancellationToken = default);
     
     Task BulkAddAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default);
+    
+    Task BulkUpdateAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default);
     
     Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default);
 }

@@ -27,10 +27,10 @@ public class DataStore<TEntity>(DbContext dbContext) : IDataStore<TEntity>
 
         if (predicate != null)
         {
-            return await query.FirstAsync(predicate, cancellationToken);
+            return await query.FirstOrDefaultAsync(predicate, cancellationToken);
         }
 
-        return await query.FirstAsync(cancellationToken);
+        return await query.FirstOrDefaultAsync(cancellationToken);
     }
 
     public async Task<IList<TEntity>>  ListAsync(
@@ -112,10 +112,31 @@ public class DataStore<TEntity>(DbContext dbContext) : IDataStore<TEntity>
         return entry.Entity;
     }
     
-    public void Update(TEntity entity)
+    public async Task UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         DbSet.Attach(entity);
         DbSet.Entry(entity).State = EntityState.Modified;
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+    
+    public async Task BulkUpdateAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
+    {
+        await _semaphore.WaitAsync(cancellationToken);
+
+        try
+        {
+            foreach (var entity in entities)
+            {
+                DbSet.Attach(entity);
+                DbSet.Entry(entity).State = EntityState.Modified;
+            }
+            
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+        finally 
+        {
+            _semaphore.Release();
+        }
     }
 
     public async Task BulkAddAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)

@@ -1,6 +1,9 @@
-﻿namespace Movies.IndexBuilder.Batching;
+﻿using Movies.Core.Entities;
+using Microsoft.EntityFrameworkCore;
 
-public static class BatchProcessor
+namespace Movies.Persistence.Batching;
+
+public  class BatchProcessor
 {
     public static async IAsyncEnumerable<List<T>> BatchAsync<T>(IAsyncEnumerable<T> source, int batchSize)
     {
@@ -22,24 +25,25 @@ public static class BatchProcessor
         }
     }
 
-    public static async Task BatchAsync<T>(IEnumerable<T> source, int batchSize, Func<IList<T>, Task> action)
+    public static async Task BatchAsync<TEntity>(IQueryable<TEntity> source, int batchSize, Func<IList<TEntity>, Task> action)
+        where TEntity : class, IEntity
     {
-        int processed = 0;
+        int processing = 0;
         var tasks = new List<Task>();
         
         while (true)
         {
-            var batch = source
-                .Skip(processed)
+            var batch = await source
+                .AsNoTracking()
+                .Skip(processing)
                 .Take(batchSize)
-                .ToList();
+                .ToListAsync();
 
             if (!batch.Any())
                 break;
             
             tasks.Add(action(batch));
-            
-            Interlocked.Add(ref processed, batch.Count);
+            Interlocked.Add(ref processing, batch.Count);
         }
         
         await Task.WhenAll(tasks);

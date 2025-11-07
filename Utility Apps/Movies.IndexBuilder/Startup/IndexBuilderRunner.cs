@@ -6,8 +6,8 @@ using Microsoft.Extensions.Options;
 using Movies.Core.Entities;
 using Movies.Core.Enums;
 using Movies.Core.Extensions;
-using Movies.IndexBuilder.Batching;
 using Movies.IndexBuilder.Configurations;
+using Movies.Persistence.Batching;
 using Movies.Persistence.Infrastructure;
 using Movies.Search;
 using Movies.Search.Models;
@@ -59,7 +59,7 @@ public class IndexBuilderRunner(
             await Task.WhenAll(indexingTasks);
 
             await PopulateTfIdfScoreAsync(cancellationToken);
-            
+
             Console.WriteLine($"Indexing has been completed! {_totalCount} documents was indexed.");
         }
         catch (OperationCanceledException)
@@ -206,11 +206,16 @@ public class IndexBuilderRunner(
         {
             using var taskScope = scopeFactory.CreateScope();
             var scopedDatabase = taskScope.ServiceProvider.GetRequiredService<IDatabase<MovieDbContext>>();
+            var batchKeys = batch.Select(item => new { item.TermId, item.MovieId }).ToList();
             
-            var termIndices = await scopedDatabase.Store<TermIndex>().ListAsync(
-                ti => batch.Any(item => item.TermId == ti.TermId && item.MovieId == ti.MovieId), 
-                includeProperties: includeProperties, 
-                cancellationToken: cancellationToken);
+            var movieIds = batchKeys.Select(k => k.MovieId).ToList();
+            var termIds = batchKeys.Select(k => k.TermId).ToList();
+            
+            var termIndices = await scopedDatabase.Store<TermIndex>()
+                .ListAsync(
+                    index => movieIds.Contains(index.MovieId) && termIds.Contains(index.TermId),
+                    includeProperties: includeProperties,
+                    cancellationToken: cancellationToken);
             
             var termsCountLookup = await scopedDatabase.Store<TermIndex>()
                 .AsQueryable()
@@ -220,12 +225,13 @@ public class IndexBuilderRunner(
 
             var termsPerDocumentCountLookup = await scopedDatabase.Store<TermIndex>()
                 .AsQueryable()
-                .Where(ti => ti.Term.TermType.NotNgram())
+                .Include(ti => ti.Term)
+                .Where(ti => ti.Term.TermType == TermType.CharactersNgram || ti.Term.TermType == TermType.WordNgram)
                 .GroupBy(ti => ti.MovieId)
                 .Select(g => new { MovieId = g.Key, Count = g.Count() })
                 .ToDictionaryAsync(x => x.MovieId, x => x.Count, cancellationToken);
             
-            Parallel.ForEach(batch, parallelOptions, termVector =>
+            Parallel.ForEach(batch, parallelOptions, async termVector =>
             {
                 var index = termIndices.First(ti => ti.MovieId == termVector.MovieId && ti.TermId == termVector.TermId);
                 
@@ -237,10 +243,9 @@ public class IndexBuilderRunner(
                 double tfIdfScore = tf * idf;
                 
                 termVector.Score = tfIdfScore;
-                scopedDatabase.Store<TermVector>().Update(termVector);
             });
             
-            await scopedDatabase.SaveChangesAsync(cancellationToken);
+            await scopedDatabase.Store<TermVector>().BulkUpdateAsync(batch, cancellationToken);
         });
     }
 }

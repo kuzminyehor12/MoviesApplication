@@ -1,4 +1,5 @@
 ﻿using Movies.Core.Enums;
+using Movies.Core.Extensions;
 using Movies.Search.Models;
 using Movies.Search.Utils;
 using Movies.Search.Utils.Extensions;
@@ -28,7 +29,9 @@ public class TokenCollection : List<Token>
         
         foreach (var term in dictionary)
         {
-            var frequencyWithPositions = type == TermType.WholeWord ? dictionary.FrequencyWithPositions(term) : (1, []);
+            var frequencyWithPositions = type == TermType.WholeWord || type.IsNgram() 
+                ? dictionary.FrequencyWithPositions(term) 
+                : (1, []);
 
             var token = new Token
             {

@@ -14,7 +14,7 @@ public class MovieDbContextFactory(IEnvironmentConnectionStringFactory connectio
 
         if (string.IsNullOrEmpty(connectionString))
         {
-            throw new InvalidOperationException($"Connection string not found.");
+            throw new InvalidOperationException("Connection string not found.");
         }
         
         var options = MovieDbContextOptionsFactory.CreateDbContextOptions(connectionString);
