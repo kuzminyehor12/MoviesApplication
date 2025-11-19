@@ -1,4 +1,7 @@
-﻿using Movies.Core.Enums;
+﻿using System.Reflection;
+using System.Text.RegularExpressions;
+using Movies.Core.Enums;
+using Movies.Search.Models;
 using Movies.Search.Utils.Normalizers;
 using Porter2StemmerStandard;
 
@@ -9,28 +12,45 @@ public class TfIdfTokenGenerator(FieldType fieldType) : ITokenGenerator
     private const string StopWordsFilePath = @"Data\EN-Stopwords.txt";
 
     private static string[] StopWords => 
-        File.ReadAllLines(StopWordsFilePath)
+        File.ReadAllLines(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), StopWordsFilePath))
         .Where(word => !string.IsNullOrWhiteSpace(word))
         .ToArray();
     
     public TokenCollection Generate(string text)
     {
-        ITextNormalizer normalizer = new TfIdfNormalizer();
-        string normalizedText = normalizer.Normalize(text);
+        const string termPattern = @"(\[[^\]]+\])|\w+";
+        EnglishPorter2Stemmer stemmer = new EnglishPorter2Stemmer();
+        var terms = new List<string>();
+        var wholeStrings = new List<string>();
 
-        if (string.IsNullOrWhiteSpace(normalizedText))
+        if (string.IsNullOrWhiteSpace(text))
         {
             return new TokenCollection();
         }
         
-        string[] terms = normalizedText.Split(' ');
+        var matches = Regex.Matches(text, termPattern);
+        
+        foreach (Match match in matches)
+        {
+            ITextNormalizer? normalizer;
+            if (match.Groups[1].Success && fieldType == FieldType.Complex)
+            {
+                string phrase = match.Groups[1].Value.Trim('[', ']');
+                normalizer = new DefaultNormalizer();
+                string normalizedText = normalizer.Normalize(phrase);
+                wholeStrings.Add(normalizedText);
+            }
+            else
+            {
+                normalizer = new TfIdfNormalizer();
+                string normalizedText = normalizer.Normalize(match.Value);
+                terms.Add(Stem(normalizedText));
+            }
+        }
 
-        var termsWithNoStopWords = terms.Where(term => !StopWords.Contains(term));
+        var termsWithNoStopWords = terms.Where(term => !StopWords.Contains(term)).ToArray();
         
-        EnglishPorter2Stemmer stemmer = new EnglishPorter2Stemmer();
-        string[] stemmedTerms = termsWithNoStopWords.Select(Stem).ToArray();
-        
-        return TokenCollection.Create(TermType.WholeWord, fieldType, stemmedTerms);
+        return TokenCollection.Create(TermType.WholeWord, fieldType, termsWithNoStopWords.Union(wholeStrings).ToArray());
 
         string Stem(string term)
         {

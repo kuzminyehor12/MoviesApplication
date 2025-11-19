@@ -1,8 +1,9 @@
-using Movies.Core.Entities;
+using Movies.Application.Models;
+using Movies.Application.Requests;
 
 namespace Movies.Application.Abstractions;
 
 public interface ISemanticSearchService
 {
-    Task<IEnumerable<Movie>> SearchAsync(string query, CancellationToken cancellationToken);
+    Task<PaginatedResult<MovieViewModel>> SearchAsync(SemanticSearchRequest request, CancellationToken cancellationToken);
 }

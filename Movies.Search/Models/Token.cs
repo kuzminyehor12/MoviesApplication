@@ -4,7 +4,7 @@ namespace Movies.Search.Models;
 
 public class Token
 {
-    public required string Term { get; init; }
+    public required string Term { get; set; }
     
     public required TermType TermType { get; init; }
     

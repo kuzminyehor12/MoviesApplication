@@ -104,6 +104,7 @@ public class IndexBuilderRunner(
         
         var termIndicesBatch = new List<TermIndex>();
         var termVectorsBatch = new List<TermVector>();
+        var fieldMapBatch = new List<TermFieldMap>();
         var moviesBatch = new List<Movie>();
         var termsBatch = new List<Term>();
         
@@ -111,16 +112,19 @@ public class IndexBuilderRunner(
         {
             Console.WriteLine($"info: Processing {movie.Id} | \"{movie.Title}\"");
             
-            IReadOnlySet<Token> tokens = tokenExtractor.Extract(movie.Title, FieldType.Title, useNgrams: true, includeWholeString: true)
+            // extract tokens array as jsonb and store in separate movie table or in movie table itself
+            IReadOnlySet<Token> tokens = tokenExtractor.Extract(movie.Title, FieldType.Title, useNgrams: true)
+                .Union(tokenExtractor.Extract(movie.Title, FieldType.Title))
                 .Union(tokenExtractor.Extract(movie.Overview ?? string.Empty, FieldType.Overview))
+                .Union(tokenExtractor.Extract(movie.TagLine ?? string.Empty, FieldType.TagLine))
                 .Union(tokenExtractor.Extract(movie.Keywords?.Select(k => k.Name) ?? [], FieldType.Keyword, includeWholePerString: true))
                 .Union(tokenExtractor.Extract(movie.Genres?.Select(g => g.Name) ?? [], FieldType.Genre, includeWholePerString: true))
-                .Union(tokenExtractor.Extract(movie.CastMembers?.Select(cast => cast.Name).Take(3) ?? [], FieldType.Actor, includeWholePerString: true))
-                .Union(tokenExtractor.Extract(movie.CastMembers?.Where(cast => !string.IsNullOrWhiteSpace(cast.Character)).Select(cast => cast.Character).Take(3) ?? [], FieldType.Character, includeWholePerString: true))
-                .Union(tokenExtractor.Extract(movie.CrewMembers?.Select(cast => cast.Name).Take(2) ?? [], FieldType.Crew, includeWholePerString: true))
+                .Union(tokenExtractor.Extract(movie.CastMembers?.Select(cast => cast.Name).Take(5) ?? [], FieldType.Actor, includeWholePerString: true))
+                .Union(tokenExtractor.Extract(movie.CastMembers?.Where(cast => !string.IsNullOrWhiteSpace(cast.Character)).Select(cast => cast.Character).Take(5) ?? [], FieldType.Character, includeWholePerString: true))
+                .Union(tokenExtractor.Extract(movie.CrewMembers?.Select(cast => cast.Name).Take(3) ?? [], FieldType.Crew, includeWholePerString: true))
                 .ToHashSet(TokenEqualityComparer.DefaultComparer);
                 
-            var tokenLookup = new Dictionary<(string Term, TermType Type), Token>();
+            var tokenLookup = new Dictionary<(string Term, TermType TermType), Token>();
             var existingLocalTerms = termsBatch.Where(term => tokens.Any(t => t.Term == term.TermText && t.TermType == term.TermType));
             
             var newLocalTerms = new List<Term>();
@@ -132,7 +136,7 @@ public class IndexBuilderRunner(
                     var newTerm = new Term
                     {
                         TermText = token.Term,
-                        TermType = token.TermType,
+                        TermType = token.TermType
                     };
                     
                     newLocalTerms.Add(newTerm);
@@ -153,17 +157,25 @@ public class IndexBuilderRunner(
                     TermFrequency = tokenLookup[lookupKey].Frequency, 
                     TermPositions = tokenLookup[lookupKey].Positions
                 };
-
+                
                 if (tokenLookup[lookupKey].TermType.NotNgram())
                 {
                     var termVector = new TermVector
                     {
                         Term = indexingTerm,
-                        Movie = movie,
-                        FieldType = tokenLookup[lookupKey].FieldType,
+                        Movie = movie
                     };
                     
                     termVectorsBatch.Add(termVector);
+
+                    var fieldMap = new TermFieldMap
+                    {
+                        Term = indexingTerm,
+                        Movie = movie,
+                        FieldType = tokenLookup[lookupKey].FieldType
+                    };
+                    
+                    fieldMapBatch.Add(fieldMap);
                 }
                 
                 termIndicesBatch.Add(termIndex);
@@ -179,13 +191,15 @@ public class IndexBuilderRunner(
         await scopedDatabase.Store<Movie>().BulkAddAsync(moviesBatch, ct);
         await scopedDatabase.Store<TermIndex>().BulkAddAsync(termIndicesBatch, ct);
         await scopedDatabase.Store<TermVector>().BulkAddAsync(termVectorsBatch, ct);
+        await scopedDatabase.Store<TermFieldMap>().BulkAddAsync(fieldMapBatch, ct);
     }
 
     private async Task PopulateTfIdfScoreAsync(CancellationToken cancellationToken)
     {
         var includeProperties = new[]
         {
-            $"{nameof(TermIndex.Term)}"
+            $"{nameof(TermIndex.Term)}",
+            $"{nameof(TermIndex.Movie)}"
         };
         
         var vectorQueryable = database.Store<TermVector>()
@@ -206,11 +220,11 @@ public class IndexBuilderRunner(
         {
             using var taskScope = scopeFactory.CreateScope();
             var scopedDatabase = taskScope.ServiceProvider.GetRequiredService<IDatabase<MovieDbContext>>();
+            var tokenExtractor = taskScope.ServiceProvider.GetRequiredService<ITokenExtractor>();
+
             var batchKeys = batch.Select(item => new { item.TermId, item.MovieId }).ToList();
-            
             var movieIds = batchKeys.Select(k => k.MovieId).ToList();
             var termIds = batchKeys.Select(k => k.TermId).ToList();
-            
             var termIndices = await scopedDatabase.Store<TermIndex>()
                 .ListAsync(
                     index => movieIds.Contains(index.MovieId) && termIds.Contains(index.TermId),
@@ -219,29 +233,30 @@ public class IndexBuilderRunner(
             
             var termsCountLookup = await scopedDatabase.Store<TermIndex>()
                 .AsQueryable()
-                .GroupBy(ti => ti.TermId)
-                .Select(g => new { TermId = g.Key, Count = g.Count() })
-                .ToDictionaryAsync(x => x.TermId, x => x.Count, cancellationToken);
-
-            var termsPerDocumentCountLookup = await scopedDatabase.Store<TermIndex>()
-                .AsQueryable()
-                .Include(ti => ti.Term)
-                .Where(ti => ti.Term.TermType == TermType.CharactersNgram || ti.Term.TermType == TermType.WordNgram)
-                .GroupBy(ti => ti.MovieId)
-                .Select(g => new { MovieId = g.Key, Count = g.Count() })
-                .ToDictionaryAsync(x => x.MovieId, x => x.Count, cancellationToken);
+                .Where(ti => ti.Term.TermType == TermType.WholeWord || ti.Term.TermType == TermType.WholeString)
+                .GroupBy(ti => ti.Term.TermText)
+                .ToDictionaryAsync(g => g.Key, g => g.Count(), cancellationToken);
             
             Parallel.ForEach(batch, parallelOptions, async termVector =>
             {
-                var index = termIndices.First(ti => ti.MovieId == termVector.MovieId && ti.TermId == termVector.TermId);
+                var index = termIndices.First(ti =>
+                    ti.MovieId == termVector.MovieId && ti.TermId == termVector.TermId);
                 
-                int termsCountPerDocument = termsPerDocumentCountLookup.GetValueOrDefault(index.MovieId);
-                int numberOfDocumentsContainingTerm = termsCountLookup.GetValueOrDefault(index.TermId);
+                int numberOfDocumentsContainingTerm = termsCountLookup.GetValueOrDefault(index.Term.TermText);
+                var tokens = tokenExtractor.Extract(index.Movie.ToString(), FieldType.Complex);
+                var term = tokens.FirstOrDefault(token => token.Term == index.Term.TermText);
                 
-                double tf = termsCountPerDocument > 0 ? index.TermFrequency / (double)termsCountPerDocument : 0;
-                double idf = numberOfDocumentsContainingTerm > 0 ? Math.Log(moviesCount / (double)numberOfDocumentsContainingTerm) : 0;
+                if (term is null)
+                {
+                    Console.WriteLine($"Term {index.Term.TermText} was not presented in tokens list.");
+                }
+                
+                double tf = tokens.Count > 0 && term != null ? term.Frequency / (double)tokens.Count : 0;
+                double idf = numberOfDocumentsContainingTerm > 0
+                    ? Math.Log(moviesCount / (double)numberOfDocumentsContainingTerm)
+                    : 0;
+                
                 double tfIdfScore = tf * idf;
-                
                 termVector.Score = tfIdfScore;
             });
             

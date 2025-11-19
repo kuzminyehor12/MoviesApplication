@@ -10,5 +10,9 @@ public class TermIndexEntityTypeConfiguration : IEntityTypeConfiguration<TermInd
     {
         builder.Ignore(termIndex => termIndex.Id);
         builder.HasKey(termIndex => new { termIndex.TermId, termIndex.MovieId });
+        
+        builder
+            .HasIndex(ti => new { ti.MovieId, ti.TermId })
+            .HasDatabaseName("IX_TermIndex_MovieTerm");
     }
 }

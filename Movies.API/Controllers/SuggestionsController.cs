@@ -16,7 +16,7 @@ namespace Movies.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Suggestion>>> GetSuggestions(string query, CancellationToken cancellationToken = default)
+        public async Task<ActionResult<IEnumerable<Suggestion>>> GetSuggestions([FromQuery] string query, CancellationToken cancellationToken = default)
         {
             var suggestions = await _suggestionService.GetSuggestionsAsync(query, cancellationToken);
             return Ok(suggestions);

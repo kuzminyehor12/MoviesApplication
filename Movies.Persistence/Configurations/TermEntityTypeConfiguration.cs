@@ -12,6 +12,12 @@ public class TermEntityTypeConfiguration  : IEntityTypeConfiguration<Term>
             .Property(term => term.Id)
             .UseIdentityByDefaultColumn();
         
-        builder.HasIndex(term => term.TermText);
+        builder
+            .HasIndex(t => t.TermText)
+            .HasDatabaseName("IX_Terms_TermText");
+        
+        builder
+            .HasIndex(t => t.TermType)
+            .HasDatabaseName("IX_Terms_TermType");
     }
 }

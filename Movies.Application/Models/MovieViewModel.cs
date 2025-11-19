@@ -57,7 +57,7 @@ public class MovieViewModel
     {
         return new MovieViewModel
         {
-            Score = 1,
+            Score = 0,
             Title = movie.Title,
             Genres = movie.Genres,
             Overview = movie.Overview,

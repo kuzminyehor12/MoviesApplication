@@ -7,7 +7,7 @@ namespace Movies.Search;
 
 public class TokenExtractor : ITokenExtractor
 {
-    public IReadOnlySet<Token> Extract(string text, FieldType fieldType, bool useNgrams = false, bool includeWholeString = false)
+    public IReadOnlySet<Token> Extract(string text, FieldType fieldType = FieldType.None, bool useNgrams = false, bool includeWholeString = false)
     {
         if (string.IsNullOrWhiteSpace(text))
         {
@@ -15,17 +15,18 @@ public class TokenExtractor : ITokenExtractor
         }
         
         var tokens = new TokenCollection();
-        ITextNormalizer textNormalizer = new DefaultNormalizer();
-        
-        string normalizedText = textNormalizer.Normalize(text);
 
         if (includeWholeString)
         {
+            ITextNormalizer textNormalizer = new DefaultNormalizer();
+        
+            string normalizedText = textNormalizer.Normalize(text);
+            
             var wholeStringToken = new Token
             {
                 Term = normalizedText,
                 TermType = TermType.WholeString,
-                FieldType = FieldType.Title,
+                FieldType = fieldType,
                 Frequency = 1
             };
             
@@ -34,12 +35,12 @@ public class TokenExtractor : ITokenExtractor
 
         ITokenGenerator tokenGenerator = useNgrams ? new NgramTokenGenerator(fieldType) : new TfIdfTokenGenerator(fieldType);
 
-        tokens.AddRange(tokenGenerator.Generate(normalizedText));
+        tokens.AddRange(tokenGenerator.Generate(text));
 
         return tokens.ToHashSet();
     }
     
-    public IReadOnlySet<Token> Extract(IEnumerable<string?>? terms, FieldType fieldType, bool includeWholePerString = false)
+    public IReadOnlySet<Token> Extract(IEnumerable<string?>? terms, FieldType fieldType = FieldType.None, bool includeWholePerString = false)
     {
         if (terms is null || !terms.Any())
         {
@@ -60,7 +61,8 @@ public class TokenExtractor : ITokenExtractor
                     Term = normalizedTerm,
                     TermType = TermType.WholeString,
                     FieldType = fieldType,
-                    Frequency = 1
+                    Frequency = 1,
+                    Positions = [0]
                 };
             
                 tokens.Add(wholeStringToken);

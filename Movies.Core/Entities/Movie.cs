@@ -1,4 +1,6 @@
-﻿namespace Movies.Core.Entities;
+﻿using System.Text;
+
+namespace Movies.Core.Entities;
 
 public class Movie : BaseEntity<int>
 {
@@ -31,4 +33,46 @@ public class Movie : BaseEntity<int>
     public ICollection<TermIndex>? TermIndex { get; init; }
     
     public ICollection<TermVector>? TermVectors { get; init; }
+    
+    public ICollection<TermFieldMap>? FieldMaps { get; init; }
+
+    public override string ToString()
+    {
+        var text = new StringBuilder();
+
+        text.AppendLine(Title);
+
+        if (Genres != null)
+        {
+            text.AppendLine(string.Join(',', Genres.Select(g => "[" + g.Name + "]")));
+        }
+
+        if (Overview != null)
+        {
+            text.AppendLine(Overview);
+        }
+        
+        if (TagLine != null)
+        {
+            text.AppendLine(TagLine);
+        }
+        
+        if (Keywords != null)
+        {
+            text.AppendLine(string.Join(',', Keywords.Select(g => "[" + g.Name + "]")));
+        }
+        
+        if (CastMembers != null)
+        {
+            text.AppendLine(string.Join(',', CastMembers.Take(5).Select(g => "[" + g.Name + "]")));
+            text.AppendLine(string.Join(',', CastMembers.Where(cast => !string.IsNullOrWhiteSpace(cast.Character)).Select(cast => "[" + cast.Character + "]").Take(5)));
+        }
+        
+        if (CrewMembers != null)
+        {
+            text.AppendLine(string.Join(',', CrewMembers.Take(3).Select(g => "[" + g.Name + "]")));
+        }
+
+        return text.ToString();
+    }
 }

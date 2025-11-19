@@ -28,8 +28,14 @@ public class FuzzySearchService : IFuzzySearchService
     public async Task<PaginatedResult<MovieViewModel>> SearchAsync(FuzzySearchRequest request,
         CancellationToken cancellationToken)
     {
-        var tokens = _tokenExtractor.Extract(request.Query, FieldType.Title, useNgrams: true, includeWholeString: true);
+        var tokens = _tokenExtractor.Extract(request.Query, FieldType.Title, useNgrams: true);
 
+        if (tokens.Count == 0)
+        {
+            var movies = await _database.Store<Movie>().ListAsync(cancellationToken: cancellationToken);
+            return PaginatedResult<MovieViewModel>.Create(movies.Select(MovieViewModel.Create), 1);
+        }
+        
         var finalResults = new List<MovieViewModel>();
 
         var ngramArray = tokens.Where(token => token.TermType.IsNgram()).Select(token => token.Term).ToArray();
@@ -44,9 +50,21 @@ public class FuzzySearchService : IFuzzySearchService
             .OrderByDescending(r => r.Score)
             .Select(r => r.Movie)
             .ToListAsync(cancellationToken);*/
+        
+        var matchingTermIds = _database.Store<Term>()
+            .AsQueryable()
+            .Where(t => ngramArray.Contains(t.TermText) && (t.TermType == TermType.CharactersNgram || t.TermType == TermType.WordNgram))
+            .Select(t => t.Id);
+        
+        var preFilteredMovieIds = _database.Store<TermIndex>()
+            .AsQueryable()
+            .Where(ti => matchingTermIds.Contains(ti.TermId))
+            .Select(ti => ti.MovieId)
+            .Distinct();
 
         var allCandidates = await _database.Store<Movie>()
             .AsQueryable()
+            .Where(movie => preFilteredMovieIds.Contains(movie.Id))
             .Select(movie => new MovieScoreResult
             {
                 Movie = movie,
@@ -54,7 +72,7 @@ public class FuzzySearchService : IFuzzySearchService
             })
             .ToListAsync(cancellationToken);
 
-        var filteredCandidates = allCandidates.Where(r => r.Score > 0.3m).ToList();
+        var filteredCandidates = allCandidates.OrderByDescending(r => r.Score).Where(r => r.Score > 0.3m).ToList();
 
         var exactMatchCandidates = filteredCandidates.Where(r => r.Score >= 0.7m).ToList();
        
@@ -65,7 +83,7 @@ public class FuzzySearchService : IFuzzySearchService
             
             if (fuzzyToAdd.Count == 0)
             {
-                var broadToAdd = filteredCandidates.Where(r => r.Score is >= 0.3m and < 0.6m).ToList();
+                var broadToAdd = filteredCandidates.Where(r => r.Score is >= 0.3m and < 0.5m).ToList();
                 finalResults.AddRange(broadToAdd.Select(MovieViewModel.Create));
             }
         }

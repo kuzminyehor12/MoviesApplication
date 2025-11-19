@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using CsvHelper.Configuration;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -132,6 +133,8 @@ static class Program
         }
         
         var options = MovieDbContextOptionsFactory.CreateDbContextOptions(connectionString);
-        return new MovieDbContext(options);
+        var factory = new PooledDbContextFactory<MovieDbContext>(options);
+        
+        return factory.CreateDbContext();
     }
 }

@@ -22,6 +22,7 @@ public static class Program
         builder.Services.AddTransient<ITextNormalizer, DefaultNormalizer>();
         
         builder.Services.AddScoped<IFuzzySearchService, FuzzySearchService>();
+        builder.Services.AddScoped<ISemanticSearchService, SemanticSearchService>();
         builder.Services.AddScoped<ISuggestionService, SuggestionsService>();
         builder.Services.AddScoped<ITokenExtractor, TokenExtractor>();
         

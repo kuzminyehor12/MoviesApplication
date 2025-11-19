@@ -30,19 +30,50 @@ public  class BatchProcessor
     {
         int processing = 0;
         var tasks = new List<Task>();
+        const int connectionPoolSize = 100;
+        var semaphore = new SemaphoreSlim(connectionPoolSize);
         
         while (true)
         {
-            var batch = await source
-                .AsNoTracking()
-                .Skip(processing)
-                .Take(batchSize)
-                .ToListAsync();
-
+            List<TEntity> batch = new List<TEntity>();
+            bool success = false;
+            int retryCount = 0;
+            
+            while (retryCount <= 3 && !success)
+            {
+                try
+                {
+                    batch = await source
+                        .AsNoTracking()
+                        .Skip(processing)
+                        .Take(batchSize)
+                        .ToListAsync();
+                    
+                    success = true;
+                }
+                catch
+                {
+                    Console.WriteLine($"info: Retrying #{retryCount}...");
+                    retryCount++;
+                }
+            }
+            
             if (!batch.Any())
                 break;
             
-            tasks.Add(action(batch));
+            await semaphore.WaitAsync();
+            
+            tasks.Add(Task.Run(async () => {
+                try
+                {
+                    await action(batch);
+                } 
+                finally
+                {
+                    semaphore.Release();
+                }
+            }));
+            
             Interlocked.Add(ref processing, batch.Count);
         }
         

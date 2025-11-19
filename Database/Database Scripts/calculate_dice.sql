@@ -30,19 +30,19 @@ INTO
     intersection_count,
     movie_ngrams_count
 FROM "TermIndex" ti
-         INNER JOIN "Terms" t ON ti."TermId" = t."Id"
+INNER JOIN "Terms" t ON ti."TermId" = t."Id"
 WHERE ti."MovieId" = p_movie_id
   AND t."TermType" IN (0, 1);
 
 -- Denominator Part 1: Unweighted count of query ngrams
 DECLARE
 unweighted_query_size numeric := array_length(p_query_ngrams, 1);
-        final_denominator numeric := unweighted_query_size + movie_ngrams_count;
+final_denominator numeric := unweighted_query_size + movie_ngrams_count;
 BEGIN
         IF final_denominator = 0.0 THEN RETURN 0.0; END IF;
 
-        -- We accept that the numerator can now slightly exceed the standard Dice cap of 1.0,
-        -- but this gives the desired boosting effect without drastic drops.
+-- We accept that the numerator can now slightly exceed the standard Dice cap of 1.0,
+-- but this gives the desired boosting effect without drastic drops.
 RETURN (2.0 * intersection_count) / final_denominator;
 END;
 END;

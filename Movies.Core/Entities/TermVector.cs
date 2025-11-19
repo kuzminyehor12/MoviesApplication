@@ -16,8 +16,6 @@ public class TermVector : BaseEntity<(int TermId, int MovieId)>
         init => Id = (TermId, value);
     }
     
-    public required FieldType FieldType { get; init; }
-    
     public double Score { get; set; }
     
     public Movie Movie { get; init; } = null!;

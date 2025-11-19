@@ -3,9 +3,7 @@ using Movies.Application.Abstractions;
 using Movies.Application.Models;
 using Movies.Core.Entities;
 using Movies.Core.Enums;
-using Movies.Core.Extensions;
 using Movies.Persistence.Infrastructure;
-using Movies.Search;
 using Movies.Search.Utils.Normalizers;
 
 namespace Movies.Application.Services;
@@ -23,15 +21,15 @@ public class SuggestionsService : ISuggestionService
 
     public async Task<IEnumerable<Suggestion>> GetSuggestionsAsync(string query, CancellationToken cancellationToken)
     {
+        const int suggestionsCount = 5;
         var normalizedQuery = _textNormalizer.Normalize(query);
         
         var suggestedIndex = await _database.Store<TermIndex>()
             .AsQueryable()
             .Where(index => index.TermPositions.Contains(0))
             .Include(index => index.Term)
-            .Include(index => index.Movie)
             .Where(index => index.Term.TermText == normalizedQuery && (index.Term.TermType == TermType.CharactersNgram || index.Term.TermType == TermType.WordNgram))
-            .Take(5)
+            .Take(suggestionsCount)
             .ToListAsync(cancellationToken);
 
         return suggestedIndex.Select(index => new Suggestion

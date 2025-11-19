@@ -15,7 +15,7 @@ public static class MovieConfigurationManager
             lock (Locker)
             {
                 return _configuration ??= new ConfigurationBuilder()
-                    .SetBasePath(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location))
+                    .SetBasePath(Path.GetDirectoryName(Assembly.GetAssembly(typeof(MovieConfigurationManager)).Location))
                     .AddJsonFile("appsettings.common.json", optional: false, reloadOnChange: true)
                     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                     .AddUserSecrets(typeof(MovieConfigurationManager).Assembly)

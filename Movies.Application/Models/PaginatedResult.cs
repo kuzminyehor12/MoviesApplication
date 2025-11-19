@@ -14,7 +14,7 @@ public class PaginatedResult<T>
     
     public int TotalPages { get; init; }
 
-    public static PaginatedResult<T> Create(IEnumerable<T> results, int pageNumber)
+    public static PaginatedResult<T> Create(IEnumerable<T> results, int pageNumber = 1)
     {
         var items = results.ToList();
         

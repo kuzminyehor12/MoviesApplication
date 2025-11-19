@@ -6,11 +6,23 @@ using Movies.Persistence.Infrastructure;
 
 namespace Movies.Migrations;
 
-public class MovieDbContextFactory(IEnvironmentConnectionStringFactory connectionStringFactory) : IDesignTimeDbContextFactory<MovieDbContext>
+public class MovieDbContextFactory : IDesignTimeDbContextFactory<MovieDbContext>
 {
+    private readonly IEnvironmentConnectionStringFactory _connectionStringFactory;
+
+    public MovieDbContextFactory()
+    {
+        _connectionStringFactory = new EnvironmentConnectionStringFactory(MovieConfigurationManager.Configuration);
+    }
+    
+    public MovieDbContextFactory(IEnvironmentConnectionStringFactory connectionStringFactory)
+    {
+        _connectionStringFactory = connectionStringFactory;
+    }
+
     public MovieDbContext CreateDbContext(string[] args)
     {
-        var connectionString = connectionStringFactory.GetInactiveDatabaseEnvironment();
+        var connectionString = _connectionStringFactory.GetInactiveDatabaseEnvironment();
 
         if (string.IsNullOrEmpty(connectionString))
         {

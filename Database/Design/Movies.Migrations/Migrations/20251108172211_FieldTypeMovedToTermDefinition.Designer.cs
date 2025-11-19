@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Movies.Persistence.Infrastructure;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Movies.Migrations.Migrations
 {
     [DbContext(typeof(MovieDbContext))]
-    partial class MovieDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251108172211_FieldTypeMovedToTermDefinition")]
+    partial class FieldTypeMovedToTermDefinition
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -90,6 +93,9 @@ namespace Movies.Migrations.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("FieldType")
+                        .HasColumnType("integer");
+
                     b.Property<string>("TermText")
                         .IsRequired()
                         .HasColumnType("text");
@@ -102,32 +108,6 @@ namespace Movies.Migrations.Migrations
                     b.HasIndex("TermText");
 
                     b.ToTable("Terms");
-                });
-
-            modelBuilder.Entity("Movies.Core.Entities.TermFieldMap", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("FieldType")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("MovieId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TermId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MovieId");
-
-                    b.HasIndex("TermId");
-
-                    b.ToTable("TermFieldMap");
                 });
 
             modelBuilder.Entity("Movies.Core.Entities.TermIndex", b =>
@@ -170,25 +150,6 @@ namespace Movies.Migrations.Migrations
                     b.ToTable("TermVectors");
                 });
 
-            modelBuilder.Entity("Movies.Core.Entities.TermFieldMap", b =>
-                {
-                    b.HasOne("Movies.Core.Entities.Movie", "Movie")
-                        .WithMany("FieldMaps")
-                        .HasForeignKey("MovieId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Movies.Core.Entities.Term", "Term")
-                        .WithMany("FieldMaps")
-                        .HasForeignKey("TermId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Movie");
-
-                    b.Navigation("Term");
-                });
-
             modelBuilder.Entity("Movies.Core.Entities.TermIndex", b =>
                 {
                     b.HasOne("Movies.Core.Entities.Movie", "Movie")
@@ -229,8 +190,6 @@ namespace Movies.Migrations.Migrations
 
             modelBuilder.Entity("Movies.Core.Entities.Movie", b =>
                 {
-                    b.Navigation("FieldMaps");
-
                     b.Navigation("TermIndex");
 
                     b.Navigation("TermVectors");
@@ -238,8 +197,6 @@ namespace Movies.Migrations.Migrations
 
             modelBuilder.Entity("Movies.Core.Entities.Term", b =>
                 {
-                    b.Navigation("FieldMaps");
-
                     b.Navigation("Index");
 
                     b.Navigation("Vectors");

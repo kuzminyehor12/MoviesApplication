@@ -10,5 +10,8 @@ public class TermVectorEntityTypeConfiguration : IEntityTypeConfiguration<TermVe
     {
         builder.Ignore(termVector => termVector.Id);
         builder.HasKey(termVector => new { termVector.TermId, termVector.MovieId });
+        builder
+            .HasIndex(ti => new { ti.MovieId, ti.TermId })
+            .HasDatabaseName("IX_TermVectors_MovieTerm");
     }
 }

@@ -11,4 +11,6 @@ public class Term : BaseEntity<int>
     public ICollection<TermIndex>? Index { get; init; }
     
     public ICollection<TermVector>? Vectors { get; init; }
+    
+    public ICollection<TermFieldMap>? FieldMaps { get; init; }
 }

@@ -10,6 +10,8 @@ public class DefaultNormalizer : ITextNormalizer
     
     private static readonly Regex WhiteSpacePattern = new (@"\s+", RegexOptions.Compiled);
     
+    protected virtual string[] GetNoise() => ["*", "(", ")", "[", "]", "{", "}", "\"", "'"];
+    
     public virtual string Normalize(string? text)
     {
         if (string.IsNullOrWhiteSpace(text))
@@ -37,6 +39,12 @@ public class DefaultNormalizer : ITextNormalizer
         text = sb.ToString().Normalize(NormalizationForm.FormC);
         
         text = text.Replace("'", string.Empty).Replace("’", string.Empty);
+        
+        foreach (var noise in GetNoise())
+        {
+            text = text.Replace(noise, string.Empty);
+        }
+        
         text = PunctuationPattern.Replace(text, " ");
         text = WhiteSpacePattern.Replace(text, " ");
         

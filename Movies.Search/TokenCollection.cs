@@ -41,7 +41,7 @@ public class TokenCollection : List<Token>
                 Frequency = frequencyWithPositions.Frequency,
                 Positions = frequencyWithPositions.Positions
             };
-                
+            
             tokenCollection.Add(token);
         }
         
