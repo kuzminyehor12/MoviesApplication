@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Movies.Persistence.Infrastructure;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -12,9 +13,11 @@ using Pgvector;
 namespace Movies.Migrations.Migrations
 {
     [DbContext(typeof(MovieDbContext))]
-    partial class MovieDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251124225002_NewTablesAddedToDbContext")]
+    partial class NewTablesAddedToDbContext
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -92,17 +95,11 @@ namespace Movies.Migrations.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("MovieId")
-                        .HasColumnType("integer");
-
                     b.Property<Vector>("Vector")
                         .IsRequired()
                         .HasColumnType("vector(384)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("MovieId")
-                        .IsUnique();
 
                     b.ToTable("MovieEmbeddings");
                 });
@@ -204,15 +201,15 @@ namespace Movies.Migrations.Migrations
                     b.ToTable("TermVectors");
                 });
 
-            modelBuilder.Entity("Movies.Core.Entities.MovieEmbedding", b =>
+            modelBuilder.Entity("Movies.Core.Entities.Movie", b =>
                 {
-                    b.HasOne("Movies.Core.Entities.Movie", "Movie")
-                        .WithOne("Embedding")
-                        .HasForeignKey("Movies.Core.Entities.MovieEmbedding", "MovieId")
+                    b.HasOne("Movies.Core.Entities.MovieEmbedding", "Embedding")
+                        .WithOne("Movie")
+                        .HasForeignKey("Movies.Core.Entities.Movie", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Movie");
+                    b.Navigation("Embedding");
                 });
 
             modelBuilder.Entity("Movies.Core.Entities.TermFieldMap", b =>
@@ -274,14 +271,17 @@ namespace Movies.Migrations.Migrations
 
             modelBuilder.Entity("Movies.Core.Entities.Movie", b =>
                 {
-                    b.Navigation("Embedding")
-                        .IsRequired();
-
                     b.Navigation("FieldMaps");
 
                     b.Navigation("TermIndex");
 
                     b.Navigation("TermVectors");
+                });
+
+            modelBuilder.Entity("Movies.Core.Entities.MovieEmbedding", b =>
+                {
+                    b.Navigation("Movie")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Movies.Core.Entities.Term", b =>

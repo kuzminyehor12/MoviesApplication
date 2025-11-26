@@ -33,12 +33,16 @@ public class TfIdfTokenGenerator(FieldType fieldType) : ITokenGenerator
         foreach (Match match in matches)
         {
             ITextNormalizer? normalizer;
-            if (match.Groups[1].Success && fieldType == FieldType.Complex)
+            if (match.Groups[1].Success)
             {
                 string phrase = match.Groups[1].Value.Trim('[', ']');
+                string[] termsWithinPhrase = phrase.Split(' ');
                 normalizer = new DefaultNormalizer();
-                string normalizedText = normalizer.Normalize(phrase);
-                wholeStrings.Add(normalizedText);
+
+                foreach (string term in termsWithinPhrase)
+                {
+                    wholeStrings.Add(normalizer.Normalize(term));
+                }
             }
             else
             {
@@ -48,7 +52,7 @@ public class TfIdfTokenGenerator(FieldType fieldType) : ITokenGenerator
             }
         }
 
-        var termsWithNoStopWords = terms.Where(term => !StopWords.Contains(term)).ToArray();
+        var termsWithNoStopWords = terms.Where(term => !StopWords.Contains(term));
         
         return TokenCollection.Create(TermType.WholeWord, fieldType, termsWithNoStopWords.Union(wholeStrings).ToArray());
 

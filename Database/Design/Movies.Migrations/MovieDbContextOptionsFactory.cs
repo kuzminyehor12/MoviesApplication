@@ -16,7 +16,11 @@ public static class MovieDbContextOptionsFactory
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         
         var optionsBuilder = new DbContextOptionsBuilder<MovieDbContext>();
-        optionsBuilder.UseNpgsql(connectionString, options => options.MigrationsAssembly(typeof(MovieDbContextFactory).Assembly.FullName));
+        optionsBuilder.UseNpgsql(connectionString, options =>
+        {
+            options.MigrationsAssembly(typeof(MovieDbContextFactory).Assembly.FullName);
+            options.UseVector();
+        });
         optionsBuilder.LogTo(Console.WriteLine, LogLevel.Information);
 
         return optionsBuilder.Options;

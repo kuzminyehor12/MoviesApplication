@@ -10,11 +10,16 @@ namespace Movies.API.Controllers
     public class SearchController : ControllerBase
     {
         private readonly IFuzzySearchService _fuzzySearchService;
+        private readonly ILexicalSearchService _lexicalSearchService;
         private readonly ISemanticSearchService _semanticSearchService;
 
-        public SearchController(IFuzzySearchService fuzzySearchService, ISemanticSearchService semanticSearchService)
+        public SearchController(
+            IFuzzySearchService fuzzySearchService, 
+            ILexicalSearchService lexicalSearchService, 
+            ISemanticSearchService semanticSearchService)
         {
             _fuzzySearchService = fuzzySearchService;
+            _lexicalSearchService = lexicalSearchService;
             _semanticSearchService = semanticSearchService;
         }
         
@@ -34,6 +39,23 @@ namespace Movies.API.Controllers
             return Ok(result);
         }
         
+        [HttpGet("lexical")]
+        public async Task<ActionResult<PaginatedResult<MovieViewModel>>> LexicalSearch(
+            [FromQuery] string query, 
+            [FromQuery] int pageNumber = 1, 
+            CancellationToken cancellationToken = default)
+        {
+            var request = new LexicalSearchRequest
+            {
+                Query = query,
+                PageNumber = pageNumber
+            };
+            
+            var result = await _lexicalSearchService.SearchAsync(request,  cancellationToken);
+            return Ok(result);
+        }
+        
+          
         [HttpGet("semantic")]
         public async Task<ActionResult<PaginatedResult<MovieViewModel>>> SemanticSearch(
             [FromQuery] string query, 

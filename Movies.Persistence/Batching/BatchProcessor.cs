@@ -5,7 +5,7 @@ namespace Movies.Persistence.Batching;
 
 public  class BatchProcessor
 {
-    public static async IAsyncEnumerable<List<T>> BatchAsync<T>(IAsyncEnumerable<T> source, int batchSize)
+    public static async IAsyncEnumerable<List<T>> GetBatchAsync<T>(IAsyncEnumerable<T> source, int batchSize)
     {
         var batch = new List<T>(batchSize);
         
@@ -30,7 +30,7 @@ public  class BatchProcessor
     {
         int processing = 0;
         var tasks = new List<Task>();
-        const int connectionPoolSize = 100;
+        const int connectionPoolSize = 25;
         var semaphore = new SemaphoreSlim(connectionPoolSize);
         
         while (true)

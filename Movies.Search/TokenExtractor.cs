@@ -54,18 +54,23 @@ public class TokenExtractor : ITokenExtractor
         {
             foreach (var term in terms)
             {
-                string normalizedTerm = textNormalizer.Normalize(term);
-                
-                var wholeStringToken = new Token
+                string[] termsWithinString = term?.Split(' ') ?? [];
+
+                foreach (var t in termsWithinString)
                 {
-                    Term = normalizedTerm,
-                    TermType = TermType.WholeString,
-                    FieldType = fieldType,
-                    Frequency = 1,
-                    Positions = [0]
-                };
+                    string normalizedTerm = textNormalizer.Normalize(t);
+                
+                    var wholeStringToken = new Token
+                    {
+                        Term = normalizedTerm,
+                        TermType = TermType.WholeString,
+                        FieldType = fieldType,
+                        Frequency = 1,
+                        Positions = [0]
+                    };
             
-                tokens.Add(wholeStringToken);
+                    tokens.Add(wholeStringToken);
+                }
             }
             
             return tokens.ToHashSet();

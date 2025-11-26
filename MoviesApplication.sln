@@ -18,7 +18,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies.Migrations", "Databa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies.Configuration", "Configuration\Movies.Configuration\Movies.Configuration.csproj", "{FE193DA0-F172-42A2-9E65-DD5DCBFFAB38}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoviesApplication.Search.Tests", "Tests\MoviesApplication.Search.Tests\MoviesApplication.Search.Tests.csproj", "{F2F6888F-C83C-433C-9FFB-E79D973768F7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies.Search.Tests", "Tests\Movies.Search.Tests\Movies.Search.Tests.csproj", "{F2F6888F-C83C-433C-9FFB-E79D973768F7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies.TfIdfCalculator", "Utility Apps\Movies.TfIdfCalculator\Movies.TfIdfCalculator.csproj", "{E9A68AC9-283A-4C27-B3CD-07AA92099E91}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies.MovieEmbeddingBuilder", "Utility Apps\Movies.MovieEmbeddingBuilder\Movies.MovieEmbeddingBuilder.csproj", "{4430E040-F325-4AA3-8324-53BC011EAB9E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -66,5 +70,13 @@ Global
 		{F2F6888F-C83C-433C-9FFB-E79D973768F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F2F6888F-C83C-433C-9FFB-E79D973768F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F2F6888F-C83C-433C-9FFB-E79D973768F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9A68AC9-283A-4C27-B3CD-07AA92099E91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9A68AC9-283A-4C27-B3CD-07AA92099E91}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9A68AC9-283A-4C27-B3CD-07AA92099E91}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9A68AC9-283A-4C27-B3CD-07AA92099E91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4430E040-F325-4AA3-8324-53BC011EAB9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4430E040-F325-4AA3-8324-53BC011EAB9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4430E040-F325-4AA3-8324-53BC011EAB9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4430E040-F325-4AA3-8324-53BC011EAB9E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

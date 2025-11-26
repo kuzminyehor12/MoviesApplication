@@ -1,11 +1,15 @@
+using Microsoft.Extensions.AI;
+using Microsoft.Extensions.Options;
 using Movies.Application.Abstractions;
 using Movies.Application.Services;
 using Movies.Configuration;
+using Movies.Configuration.Configurations;
 using Movies.Configuration.Database;
 using Movies.Migrations;
 using Movies.Persistence.Infrastructure;
 using Movies.Search;
 using Movies.Search.Utils.Normalizers;
+using OllamaSharp;
 
 namespace Movies.API;
 
@@ -20,11 +24,21 @@ public static class Program
         builder.Services.AddControllers();
 
         builder.Services.AddTransient<ITextNormalizer, DefaultNormalizer>();
+
+        builder.Services.Configure<OllamaApiClientSettings>(Configuration.GetSection("OllamaApiClientSettings"));
+        
+        builder.Services.AddScoped<IEmbeddingGenerator<string, Embedding<float>>>(sp =>
+        {
+            var ollamaSettings = sp.GetRequiredService<IOptions<OllamaApiClientSettings>>().Value;
+            return new OllamaApiClient(new Uri(ollamaSettings.Url), ollamaSettings.Model);
+        });
         
         builder.Services.AddScoped<IFuzzySearchService, FuzzySearchService>();
+        builder.Services.AddScoped<ILexicalSearchService, LexicalSearchService>();
         builder.Services.AddScoped<ISemanticSearchService, SemanticSearchService>();
         builder.Services.AddScoped<ISuggestionService, SuggestionsService>();
         builder.Services.AddScoped<ITokenExtractor, TokenExtractor>();
+        builder.Services.AddScoped<IVectorGenerator, VectorGenerator>();
         
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();

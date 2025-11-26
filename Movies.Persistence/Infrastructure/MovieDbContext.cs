@@ -13,9 +13,15 @@ public class MovieDbContext(DbContextOptions<MovieDbContext> options) : DbContex
     
     public DbSet<TermVector> TermVectors { get; set; }
     
+    public DbSet<TermFieldMap> TermFieldMaps { get; set; }
+    
+    public DbSet<MovieEmbedding> MovieEmbeddings { get; set; }
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        
+        modelBuilder.HasPostgresExtension("vector");
         
         modelBuilder.HasDbFunction(typeof(SqlFunctions).GetMethod(nameof(SqlFunctions.CalculateJaccard)))
             .HasName("calculate_jaccard");
@@ -24,7 +30,5 @@ public class MovieDbContext(DbContextOptions<MovieDbContext> options) : DbContex
             .HasName("calculate_dice");
         
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(MovieDbContext).Assembly);
-        
-        // TODO: add indexes for terms
     }
 }

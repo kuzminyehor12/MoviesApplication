@@ -17,6 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="OllamaSharp" Version="5.4.11" />
       <PackageReference Include="Porter2StemmerStandard" Version="1.1.0" />
     </ItemGroup>
 </Project>

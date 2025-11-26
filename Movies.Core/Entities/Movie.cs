@@ -35,7 +35,9 @@ public class Movie : BaseEntity<int>
     public ICollection<TermVector>? TermVectors { get; init; }
     
     public ICollection<TermFieldMap>? FieldMaps { get; init; }
-
+    
+    public MovieEmbedding Embedding { get; init; }
+    
     public override string ToString()
     {
         var text = new StringBuilder();
