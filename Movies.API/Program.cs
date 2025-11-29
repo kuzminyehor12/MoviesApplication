@@ -37,6 +37,7 @@ public static class Program
         builder.Services.AddScoped<ILexicalSearchService, LexicalSearchService>();
         builder.Services.AddScoped<ISemanticSearchService, SemanticSearchService>();
         builder.Services.AddScoped<ISuggestionService, SuggestionsService>();
+        builder.Services.AddScoped<IRecommendationService, RecommendationService>();
         builder.Services.AddScoped<ITokenExtractor, TokenExtractor>();
         builder.Services.AddScoped<IVectorGenerator, VectorGenerator>();
         

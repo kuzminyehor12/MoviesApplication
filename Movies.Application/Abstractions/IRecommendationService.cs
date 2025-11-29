@@ -1,8 +1,8 @@
-using Movies.Core.Entities;
+using Movies.Application.Models;
 
 namespace Movies.Application.Abstractions;
 
 public interface IRecommendationService
 {
-    Task<IEnumerable<Movie>> GetRecommendationsAsync(int movieId, CancellationToken cancellationToken);
+    Task<IEnumerable<MovieViewModel>> GetRecommendationsAsync(int movieId, CancellationToken cancellationToken);
 }

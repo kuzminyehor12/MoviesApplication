@@ -4,6 +4,7 @@ namespace Movies.Application.Models;
 
 public class MovieViewModel
 {
+    public int Id { get; init; }
     public decimal Score { get; init; }
     
     public required string Title { get; init; }
@@ -36,6 +37,7 @@ public class MovieViewModel
     {
         return new MovieViewModel
         {
+            Id = result.Movie.Id,
             Score = result.Score,
             Title = result.Movie.Title,
             Genres = result.Movie.Genres,
@@ -57,6 +59,7 @@ public class MovieViewModel
     {
         return new MovieViewModel
         {
+            Id = movie.Id,
             Score = 0,
             Title = movie.Title,
             Genres = movie.Genres,
