@@ -1,0 +1,169 @@
+@import "../../styles/variables.scss";
+
+.content-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.page-title {
+  text-align: center;
+  font-size: 2.2rem;
+  font-weight: 500;
+  margin-top: 50px;
+  margin-bottom: 5px;
+}
+
+.subtitle {
+  text-align: center;
+  color: $light-text;
+  margin-bottom: 40px;
+}
+
+/* --- Search Section --- */
+.search-section {
+  max-width: 800px;
+  margin: 0 auto 30px;
+  position: relative; // For positioning the suggestions
+}
+
+.search-box {
+  display: flex;
+  border: 1px solid $border-color;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.search-input {
+  flex-grow: 1;
+  border: none;
+  padding: 12px 15px;
+  font-size: 1rem;
+  outline: none;
+}
+
+.fuzzy-dropdown {
+  border: none;
+  border-left: 1px solid $border-color;
+  padding: 0 15px;
+  background-color: #fff;
+  cursor: pointer;
+  outline: none;
+}
+
+.search-btn {
+  background-color: $primary-color;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.search-suggestions {
+  position: absolute;
+  top: 100%; // Below the search box
+  width: 70%; // Matches the input field width
+  background-color: white;
+  border: 1px solid $border-color;
+  border-top: none;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  padding: 10px 0;
+}
+
+.suggestion-item {
+  padding: 8px 15px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+
+  &:hover {
+    background-color: $background-color;
+  }
+  .dot {
+    height: 6px;
+    width: 6px;
+    background-color: $secondary-color;
+    border-radius: 50%;
+    margin-right: 8px;
+  }
+}
+
+/* --- Results Header --- */
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.found-count {
+  font-weight: bold;
+}
+
+.sort-options {
+    display: flex;
+    align-items: center; 
+    
+    font-size: 0.9rem;
+  
+    label {
+      margin-right: 0.5rem; 
+      color: $light-text;
+    }
+    
+    select {
+      padding: 0.3rem 0.6rem; 
+      border: 1px solid $border-color;
+      border-radius: 4px;
+      outline: none;
+      cursor: pointer;
+      
+      height: auto; 
+    }
+}
+
+/* --- Movie Grid --- */
+.movie-grid {
+    display: grid; 
+    grid-template-columns: repeat(4, 1fr); 
+    
+    gap: 1.5rem;
+    
+    margin-bottom: 3rem; 
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.page-btn {
+  background-color: white;
+  color: $primary-color;
+  border: 1px solid $border-color;
+  border-radius: 4px;
+  padding: 8px 14px;
+  margin: 0 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+
+  &.active {
+    background-color: $primary-color;
+    color: white;
+    border-color: $primary-color;
+  }
+
+  &.prev-next {
+    font-weight: bold;
+  }
+}
+
+.ellipsis {
+  margin: 0 4px;
+  color: $light-text;
+}

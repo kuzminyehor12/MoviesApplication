@@ -1,0 +1,10 @@
+<div class="movie-card">
+  <div class="poster-placeholder">Movie Poster</div>
+  <div class="movie-details">
+    <h3>{{ movie.title }}</h3>
+    <p class="rating-year">
+      <span class="star">★</span> {{ movie.voteAverage }} · {{ getReleaseYear() }}
+    </p>
+    <p class="genre">{{ getGenresString() }}</p>
+  </div>
+</div>

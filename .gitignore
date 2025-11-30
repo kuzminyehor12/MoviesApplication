@@ -6,3 +6,7 @@ riderModule.iml
 .ipynb_checkpoints/
 Utility Apps/Movies.IndexBuilder/Data/
 .idea
+.vscode
+node_modules
+.angular
+.editorconfig

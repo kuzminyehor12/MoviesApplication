@@ -1,0 +1,62 @@
+<main class="content-wrapper">
+  <h1 class="page-title">Find Your Next Movie</h1>
+  <p class="subtitle">
+    Search through thousands of movies using advanced search algorithms
+  </p>
+
+  <section class="search-section">
+    <div class="search-box">
+      <input
+        type="text"
+        placeholder="Search for movies..."
+        class="search-input"
+        value="The Shawshank"
+      />
+      <select class="fuzzy-dropdown">
+        <option>Fuzzy Search</option>
+        <option>Lexical Search</option>
+        <option>Semantic Search</option>
+      </select>
+      <button class="search-btn">Search</button>
+    </div>
+
+    <!-- <div class="search-suggestions">
+      <div class="suggestion-item">
+        <span class="dot"></span> The Shawshank Redemption
+      </div>
+      <div class="suggestion-item">
+        <span class="dot"></span> The Dark Knight
+      </div>
+      <div class="suggestion-item">
+        <span class="dot"></span> Inception
+      </div>
+    </div>-->
+  </section>
+
+  <section class="results-header">
+    <div class="found-count">Found 247 movies</div>
+    <div class="sort-options">
+      <label for="sort-by">Sort by:</label>
+      <select id="sort-by">
+        <option>Relevance</option>
+        <option>Rating</option>
+        <option>Year</option>
+      </select>
+    </div>
+  </section>
+
+  <section class="movie-grid">
+    <movies-card-item [movie]="getMovies()[i]" *ngFor="let i of [1, 2, 3, 4, 5, 6, 7, 8]"></movies-card-item>
+  </section>
+
+  <section class="pagination">
+    <button class="page-btn prev-next">&lt;</button>
+    <button class="page-btn active">1</button>
+    <button class="page-btn">2</button>
+    <button class="page-btn">3</button>
+    <button class="page-btn">4</button>
+    <span class="ellipsis">...</span>
+    <button class="page-btn">24</button>
+    <button class="page-btn prev-next">&gt;</button>
+  </section>
+</main>

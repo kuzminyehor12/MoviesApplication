@@ -1,0 +1,12 @@
+$primary-color: #333;
+$secondary-color: #555;
+$border-color: #ddd;
+$background-color: #f7f7f7; // For the footer
+$light-text: #666;
+$active-page: #007bff;
+
+:host {
+    display: block; // Ensures component takes up full width
+    font-family: Arial, sans-serif;
+    color: $primary-color;
+}

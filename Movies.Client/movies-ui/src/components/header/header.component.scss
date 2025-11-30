@@ -1,0 +1,43 @@
+@import "../../styles/variables.scss";
+
+.app-header {
+  border-bottom: 1px solid $border-color;
+  padding: 15px 0;
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  a {
+    text-decoration: none;
+    color: $secondary-color;
+    margin-right: 20px;
+    &.active {
+      font-weight: bold;
+      color: $primary-color;
+    }
+  }
+}
+
+.sign-in-btn {
+  background-color: $primary-color;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}

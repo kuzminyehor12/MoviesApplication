@@ -1,0 +1,8 @@
+/* You can add global styles to this file, and also import other style files */
+@import "styles/variables.scss";
+
+:host {
+    display: block; // Ensures component takes up full width
+    font-family: Arial, sans-serif;
+    color: $primary-color;
+}

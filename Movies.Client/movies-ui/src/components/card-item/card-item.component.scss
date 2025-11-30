@@ -1,0 +1,44 @@
+@import "../../styles/variables.scss";
+
+.movie-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.poster-placeholder {
+  height: 0;
+  padding-bottom: 150%; 
+  background-color: #e0e0e0;
+  color: $light-text;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  border-radius: 4px;
+}
+
+.movie-details {
+  h3 {
+    font-size: 1rem;
+    font-weight: bold;
+    margin: 0 0 5px 0;
+  }
+}
+
+.rating-year {
+  font-size: 0.9rem;
+  color: $secondary-color;
+  margin: 0 0 3px 0;
+  .star {
+    color: black;
+    margin-right: 2px;
+  }
+}
+
+.genre {
+  font-size: 0.8rem;
+  color: $light-text;
+  margin: 0;
+}
