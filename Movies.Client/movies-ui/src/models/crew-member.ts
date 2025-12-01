@@ -1,4 +1,4 @@
-class CrewMember extends NamedEntity {
+export class CrewMember extends NamedEntity {
     job!: string;
     profilePath?: string;
 }

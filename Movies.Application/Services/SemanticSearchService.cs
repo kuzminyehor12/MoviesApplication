@@ -30,10 +30,15 @@ public class SemanticSearchService : ISemanticSearchService
         var movies = await _database.Store<Movie>()
             .AsQueryable()
             .Include(m => m.Embedding)
-            .OrderBy(m => m.Embedding.Vector.CosineDistance(pgVector))
+            .Select(m => new
+            {
+                Model = MovieViewModel.Create(m),
+                Vector = m.Embedding.Vector,
+            })
+            .OrderBy(m => m.Vector.CosineDistance(pgVector))
+            .Select(m => m.Model)
             .ToListAsync(cancellationToken);
         
-        var viewModels = movies.Select(MovieViewModel.Create);
-        return PaginatedResult<MovieViewModel>.Create(viewModels, request.PageNumber);
+        return PaginatedResult<MovieViewModel>.Create(movies, request.PageNumber);
     }
 }

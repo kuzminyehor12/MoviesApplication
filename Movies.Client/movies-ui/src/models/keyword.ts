@@ -1,3 +1,3 @@
-class Keyword extends NamedEntity {
+export class Keyword extends NamedEntity {
     
 }

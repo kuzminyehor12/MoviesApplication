@@ -1,7 +1,9 @@
-class Movie extends Entity {
+import { Genre } from "./genre";
+
+export class Movie extends Entity {
     title!: string;
     voteAverage?: number;
-    releaseDate?: Date;
+    releaseDate?: string;
     posterPath?: string;
     imdbId?: string;
     genres: Genre[] = []

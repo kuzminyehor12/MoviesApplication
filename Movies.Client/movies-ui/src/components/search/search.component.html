@@ -10,53 +10,73 @@
         type="text"
         placeholder="Search for movies..."
         class="search-input"
-        value="The Shawshank"
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="onSearchInputChange($event)"
       />
-      <select class="fuzzy-dropdown">
-        <option>Fuzzy Search</option>
-        <option>Lexical Search</option>
-        <option>Semantic Search</option>
+      
+      <select class="fuzzy-dropdown" [(ngModel)]="selectedSearchType">
+        <option *ngFor="let type of searchTypes;" [value]="type.value">{{ type.name }}</option>
       </select>
-      <button class="search-btn">Search</button>
+      
+      <button class="search-btn" (click)="onSearchSubmit()">Search</button>
     </div>
 
-    <!-- <div class="search-suggestions">
-      <div class="suggestion-item">
-        <span class="dot"></span> The Shawshank Redemption
+    <div class="search-suggestions" *ngIf="suggestions.length > 0">
+      <div class="suggestion-item" 
+           *ngFor="let suggestion of suggestions;" 
+           (click)="selectSuggestion(suggestion)">
+        <span class="dot"></span> {{ suggestion.title }}
       </div>
-      <div class="suggestion-item">
-        <span class="dot"></span> The Dark Knight
-      </div>
-      <div class="suggestion-item">
-        <span class="dot"></span> Inception
-      </div>
-    </div>-->
-  </section>
-
-  <section class="results-header">
-    <div class="found-count">Found 247 movies</div>
-    <div class="sort-options">
-      <label for="sort-by">Sort by:</label>
-      <select id="sort-by">
-        <option>Relevance</option>
-        <option>Rating</option>
-        <option>Year</option>
-      </select>
     </div>
   </section>
 
-  <section class="movie-grid">
-    <movies-card-item [movie]="getMovies()[i]" *ngFor="let i of [1, 2, 3, 4, 5, 6, 7, 8]"></movies-card-item>
-  </section>
+  <div *ngIf="loading()" class="loading-container">
+    <div class="spinner"></div>
+    <p class="loading-text">Searching for movies...</p>
+  </div>
 
-  <section class="pagination">
-    <button class="page-btn prev-next">&lt;</button>
-    <button class="page-btn active">1</button>
-    <button class="page-btn">2</button>
-    <button class="page-btn">3</button>
-    <button class="page-btn">4</button>
-    <span class="ellipsis">...</span>
-    <button class="page-btn">24</button>
-    <button class="page-btn prev-next">&gt;</button>
-  </section>
+  <div *ngIf="!loading()">
+     <section class="results-header">
+      <div class="found-count">Found {{movies().length * totalPages()}} </div>
+      
+      <div class="sort-options">
+        <label for="sort-by">Sort by:</label>
+        <select id="sort-by">
+          <option>Relevance</option>
+          <option>Rating</option>
+          <option>Year</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="movie-grid">
+      <ng-container *ngIf="movies().length > 0; else noResults">
+        <movies-card-item *ngFor="let movie of movies();" [movie]="movie"></movies-card-item>
+      </ng-container>
+      <ng-template #noResults>
+        <p>No results found for your search.</p>
+      </ng-template>
+    </section>
+
+    <section class="pagination">
+      <button class="page-btn prev-next" 
+              [disabled]="currentPage() === 1" 
+              (click)="handlePageButtonClick(currentPage() - 1)">
+        &lt;
+      </button>
+
+      <button class="page-btn"
+              *ngFor="let page of getPagesArray();"
+              [class.active]="currentPage() === page"
+              (click)="handlePageButtonClick(page)">
+        {{ page }}
+      </button>
+
+      <button class="page-btn prev-next" 
+              [disabled]="currentPage() === totalPages()" 
+              (click)="handlePageButtonClick(currentPage() + 1)">
+        &gt;
+      </button>
+    </section>
+  </div>
 </main>

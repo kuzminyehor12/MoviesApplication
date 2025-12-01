@@ -28,14 +28,17 @@ public class SuggestionsService : ISuggestionService
             .AsQueryable()
             .Where(index => index.TermPositions.Contains(0))
             .Include(index => index.Term)
+            .Include(index => index.Movie)
             .Where(index => index.Term.TermText == normalizedQuery && (index.Term.TermType == TermType.CharactersNgram || index.Term.TermType == TermType.WordNgram))
             .Take(suggestionsCount)
+            .Select(index => new Suggestion
+            {
+                MovieId = index.Movie.Id,
+                Title = index.Movie.Title,
+                VoteAverage = index.Movie.VoteAverage,
+            })
             .ToListAsync(cancellationToken);
 
-        return suggestedIndex.Select(index => new Suggestion
-        {
-            MovieId = index.Movie.Id,
-            Title = index.Movie.Title
-        });
+        return suggestedIndex;
     }
 }

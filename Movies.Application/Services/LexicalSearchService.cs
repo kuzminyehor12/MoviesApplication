@@ -110,7 +110,7 @@ public class LexicalSearchService : ILexicalSearchService
                                      : 1.0m 
                              )
             })
-            .Where(result => result.TotalScore > 0.0m);
+            .Where(result => result.TotalScore > 0.1m);
         
         var movies = await _database.Store<Movie>()
             .AsQueryable()
@@ -120,13 +120,13 @@ public class LexicalSearchService : ILexicalSearchService
                 agg => agg.MovieId,
                 (movie, agg) => new MovieScoreResult 
                 {
-                    Movie = movie,
+                    Movie = MovieViewModel.Create(movie),
                     Score = agg.TotalScore
                 })
             .OrderByDescending(result => result.Score)
+            .Select(result => result.Movie)
             .ToListAsync(cancellationToken);
-
-        var viewModels = movies.Select(MovieViewModel.Create);
-        return PaginatedResult<MovieViewModel>.Create(viewModels, request.PageNumber);
+        
+        return PaginatedResult<MovieViewModel>.Create(movies, request.PageNumber);
     }
 }

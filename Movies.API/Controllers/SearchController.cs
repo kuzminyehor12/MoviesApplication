@@ -25,7 +25,7 @@ namespace Movies.API.Controllers
         
         [HttpGet("fuzzy")]
         public async Task<ActionResult<PaginatedResult<MovieViewModel>>> FuzzySearch(
-            [FromQuery] string query, 
+            [FromQuery] string query = "", 
             [FromQuery] int pageNumber = 1, 
             CancellationToken cancellationToken = default)
         {

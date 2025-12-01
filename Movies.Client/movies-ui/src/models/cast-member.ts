@@ -1,4 +1,4 @@
-class CastMember extends NamedEntity {
+export class CastMember extends NamedEntity {
     character!: string;
     profilePath?: string;
 }

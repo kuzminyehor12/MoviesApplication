@@ -1,3 +1,3 @@
-class Genre extends NamedEntity {
+export class Genre extends NamedEntity {
 
 }

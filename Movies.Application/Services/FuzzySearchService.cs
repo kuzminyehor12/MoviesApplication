@@ -1,12 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Movies.Application.Abstractions;
 using Movies.Application.Models;
 using Movies.Application.Requests;
 using Movies.Core.Entities;
 using Movies.Core.Enums;
 using Movies.Core.Extensions;
-using Movies.Persistence.Batching;
 using Movies.Persistence.Infrastructure;
 using Movies.Search;
 
@@ -25,15 +23,14 @@ public class FuzzySearchService : IFuzzySearchService
         _tokenExtractor = tokenExtractor;
     }
 
-    public async Task<PaginatedResult<MovieViewModel>> SearchAsync(FuzzySearchRequest request,
-        CancellationToken cancellationToken)
+    public async Task<PaginatedResult<MovieViewModel>> SearchAsync(FuzzySearchRequest request, CancellationToken cancellationToken)
     {
         var tokens = _tokenExtractor.Extract(request.Query, FieldType.Title, useNgrams: true);
 
         if (tokens.Count == 0)
         {
             var movies = await _database.Store<Movie>().ListAsync(cancellationToken: cancellationToken);
-            return PaginatedResult<MovieViewModel>.Create(movies.Select(MovieViewModel.Create), 1);
+            return PaginatedResult<MovieViewModel>.Create(movies.Select(MovieViewModel.Create), request.PageNumber);
         }
         
         var finalResults = new List<MovieViewModel>();
@@ -62,37 +59,46 @@ public class FuzzySearchService : IFuzzySearchService
             .Select(ti => ti.MovieId)
             .Distinct();
 
-        var allCandidates = await _database.Store<Movie>()
+        var filteredCandidates = _database.Store<Movie>()
             .AsQueryable()
             .Where(movie => preFilteredMovieIds.Contains(movie.Id))
             .Select(movie => new MovieScoreResult
             {
-                Movie = movie,
+                Movie = MovieViewModel.Create(movie),
                 Score = SqlFunctions.CalculateDice(movie.Id, ngramArray, 5)
             })
+            .Where(r => r.Score > 0.3m)
+            .OrderByDescending(r => r.Score);
+
+        var exactMatchCandidates = await filteredCandidates
+            .Where(r => r.Score >= 0.7m)
+            .Select(r => r.Movie)
             .ToListAsync(cancellationToken);
-
-        var filteredCandidates = allCandidates.OrderByDescending(r => r.Score).Where(r => r.Score > 0.3m).ToList();
-
-        var exactMatchCandidates = filteredCandidates.Where(r => r.Score >= 0.7m).ToList();
        
         if (exactMatchCandidates.Count == 0)
         {
-            var fuzzyToAdd = filteredCandidates.Where(r => r.Score is >= 0.5m and < 0.7m).ToList();
-            finalResults.AddRange(fuzzyToAdd.Select(MovieViewModel.Create));
+            var fuzzyToAdd = await filteredCandidates
+                    .Where(r => r.Score > 0.5m && r.Score < 0.7m)
+                    .Select(r => r.Movie)
+                    .ToListAsync(cancellationToken);
+            
+            finalResults.AddRange(fuzzyToAdd);
             
             if (fuzzyToAdd.Count == 0)
             {
-                var broadToAdd = filteredCandidates.Where(r => r.Score is >= 0.3m and < 0.5m).ToList();
-                finalResults.AddRange(broadToAdd.Select(MovieViewModel.Create));
+                var broadToAdd = await filteredCandidates
+                    .Where(r => r.Score >= 0.3m && r.Score <= 0.5m)
+                    .Select(r => r.Movie)
+                    .ToListAsync(cancellationToken);
+                
+                finalResults.AddRange(broadToAdd);
             }
         }
         else
         {
-            finalResults.AddRange(exactMatchCandidates.Select(MovieViewModel.Create));
+            finalResults.AddRange(exactMatchCandidates);
         }
 
-        var sortedResults = finalResults.OrderByDescending(r => r.Score);
-        return PaginatedResult<MovieViewModel>.Create(sortedResults, request.PageNumber);
+        return PaginatedResult<MovieViewModel>.Create(finalResults, request.PageNumber);
     }
 }

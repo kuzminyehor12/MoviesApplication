@@ -1,9 +1,22 @@
 <div class="movie-card">
-  <div class="poster-placeholder">Movie Poster</div>
+  <div class="poster-container">
+    <img 
+      *ngIf="moviePosterUrl" 
+      [src]="moviePosterUrl" 
+      [alt]="movie.title + ' poster'" 
+      class="movie-poster-img"
+      (error)="handleImageError()"
+    />
+    
+    <div *ngIf="!moviePosterUrl" class="poster-placeholder">
+      No Poster Available
+    </div>
+  </div>
+  
   <div class="movie-details">
     <h3>{{ movie.title }}</h3>
     <p class="rating-year">
-      <span class="star">★</span> {{ movie.voteAverage }} · {{ getReleaseYear() }}
+      <span class="star">★</span> {{ movie.voteAverage | number:'1.1-1' }} · {{ getReleaseYear() }}
     </p>
     <p class="genre">{{ getGenresString() }}</p>
   </div>
