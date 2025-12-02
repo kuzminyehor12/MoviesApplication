@@ -31,4 +31,25 @@ public class MovieExtendedModel
     public string? PosterPath { get; init; }
     
     public string? ImdbId { get; init; }
+
+    public static MovieExtendedModel Create(Movie movie)
+    {
+        return new MovieExtendedModel
+        {
+            Id = movie.Id,
+            Title = movie.Title,
+            Genres = movie.Genres,
+            Overview = movie.Overview,
+            Popularity = movie.Popularity,
+            ReleaseDate = movie.ReleaseDate,
+            TagLine = movie.TagLine,
+            CastMembers = movie.CastMembers,
+            CrewMembers = movie.CrewMembers,
+            Keywords = movie.Keywords,
+            VoteAverage = movie.VoteAverage,
+            VoteCount = movie.VoteCount,
+            PosterPath = movie.PosterPath,
+            ImdbId = movie.ImdbId
+        };
+    }
 }

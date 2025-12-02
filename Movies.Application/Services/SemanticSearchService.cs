@@ -36,6 +36,7 @@ public class SemanticSearchService : ISemanticSearchService
                 Vector = m.Embedding.Vector,
             })
             .OrderBy(m => m.Vector.CosineDistance(pgVector))
+            .Take(100)
             .Select(m => m.Model)
             .ToListAsync(cancellationToken);
         

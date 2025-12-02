@@ -1,6 +1,7 @@
 @import "../../styles/variables.scss";
 
 .movie-card {
+    cursor: pointer;
     display: flex;
     flex-direction: column;
 }

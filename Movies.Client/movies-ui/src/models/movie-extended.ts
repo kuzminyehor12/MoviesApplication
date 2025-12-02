@@ -9,4 +9,5 @@ export class MovieExtended extends Movie {
     keywords: Keyword[] = [];
     crewMembers: CrewMember[] = [];
     castMembers: CastMember[] = [];
+    voteCount: number = 0;
 }

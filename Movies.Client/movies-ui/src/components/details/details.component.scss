@@ -1,1 +1,283 @@
-@import "../../styles/variables.scss";
+@import "../../styles/variables.scss"; 
+// Assuming variables.scss defines $primary-color, $secondary-color, $light-text, $border-color, $background-color etc.
+
+.content-wrapper.detail-page {
+    max-width: 1200px; // Constrain the overall content width
+    margin: 0 auto;
+    padding: 2rem 1rem; // Add horizontal padding for smaller screens
+}
+
+/* --- Loading State Alignment --- */
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px; // Ensure it takes up vertical space
+    color: $primary-color;
+}
+
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-top: 4px solid $primary-color; // Use primary color for spinner
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+    font-size: 1.1rem;
+    color: $light-text;
+}
+
+.movie-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.banner-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto 3rem;
+    height: 0;
+    padding-bottom: 45%;
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.movie-banner-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.banner-placeholder {
+    @extend .movie-banner-img;
+    background-color: #333;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+}
+
+.overview-section {
+    padding-bottom: 2rem;
+    border-bottom: 1px solid $border-color;
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.tagline {
+    font-style: italic;
+    color: $light-text;
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
+}
+
+.keyword-list {
+    margin-top: 1rem;
+}
+
+.keyword-tag {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 1rem;
+    background-color: $background-color;
+    color: $secondary-color;
+    font-size: 0.8rem;
+    border: 1px solid $border-color;
+    transition: all 0.2s ease-in-out;
+    &:hover {
+        background-color: darken($background-color, 5%);
+    }
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.details-box {
+    border: 1px solid $border-color;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    
+    .detail-label {
+        font-size: 0.9rem;
+        font-weight: bold;
+        color: $light-text;
+        margin-bottom: 0.5rem;
+    }
+    .detail-value {
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    .detail-sub {
+        font-size: 0.8rem;
+        color: $light-text;
+        margin: 0;
+    }
+}
+
+.genres-list {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+}
+
+.genre-item {
+    @extend .keyword-tag;
+    background-color: $background-color;
+    color: $primary-color;
+    border-color: $primary-color;
+}
+
+.cast-list, .crew-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    li {
+        font-size: 0.9rem;
+        margin-bottom: 0.2rem;
+        color: $secondary-color;
+    }
+}
+
+.recommendations-section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid $border-color;
+    max-width: 1000px; 
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.recommendations-grid {
+    display: flex;
+    overflow-x: auto;
+    gap: 1.5rem;
+    padding-bottom: 1rem;
+    
+    justify-content: center; 
+    
+    width: 100%; 
+
+    &::-webkit-scrollbar { display: none; }
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.recommendation-card {
+    flex: 0 0 auto;
+    width: 150px;
+    text-align: left; // Align text left to match image
+    cursor: pointer;
+    transition: transform 0.2s;
+    
+    &:hover {
+        transform: translateY(-5px);
+    }
+}
+
+.rec-poster-container {
+    width: 100%;
+    height: 0;
+    padding-bottom: 150%;
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.25rem;
+    margin-bottom: 0.5rem;
+    background-color: #eee;
+}
+
+.rec-poster-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.rec-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 0;
+    white-space: normal; // Allow wrapping if necessary
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: 2.4em;
+    line-height: 1.2em;
+}
+
+.rec-year {
+    font-size: 0.8rem;
+    color: $light-text;
+    margin: 0;
+}
+
+.section-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    // Pushing the title slightly to the right to match the card alignment
+    padding-left: 1rem; 
+}
+
+@media (max-width: 576px) {
+    .movie-title {
+        font-size: 2rem;
+    }
+    .content-wrapper.detail-page {
+        padding: 1.5rem 1rem;
+    }
+    .section-title {
+        // Keep padding consistent on small screens
+        padding-left: 1rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .details-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .details-grid {
+        grid-template-columns: 1fr;
+    }
+    .movie-title {
+        font-size: 2rem;
+    }
+    .content-wrapper.detail-page {
+        padding: 1.5rem 1rem;
+    }
+}

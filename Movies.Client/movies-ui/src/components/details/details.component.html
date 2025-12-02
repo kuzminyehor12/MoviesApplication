@@ -1,1 +1,95 @@
-<p>details works!</p>
+<main class="content-wrapper detail-page">
+  <div *ngIf="loading()">
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p class="loading-text">Loading movie details...</p>
+    </div>
+  </div>
+
+  <div *ngIf="!loading() && movieDetail()">
+    <h1 class="movie-title">{{ movieDetail()!.title }}</h1>
+    
+    <div class="banner-container">
+      <img 
+        *ngIf="posterUrl()" 
+        [src]="posterUrl()" 
+        [alt]="movieDetail()!.title + ' banner'" 
+        class="movie-banner-img"
+        (error)="handleImageError()" 
+      />
+      <div *ngIf="!posterUrl()" class="banner-placeholder">
+        No Banner Image Available
+      </div>
+    </div>
+
+    <section class="overview-section">
+      <h2 class="section-title">Overview</h2>
+      <p class="tagline" *ngIf="movieDetail()!.tagLine">{{ movieDetail()!.tagLine }}</p>
+      <p>{{ movieDetail()!.overview }}</p>
+      
+      <div class="keyword-list">
+        <span class="keyword-tag" *ngFor="let keyword of movieDetail()!.keywords">
+          {{ keyword.name }}
+        </span>
+      </div>
+    </section>
+
+    <div class="details-grid">
+      <div class="details-box">
+        <h3 class="detail-label">Release Date</h3>
+        <p class="detail-value">{{ getReleaseYear() }}</p>
+        <p class="detail-sub">{{ getRuntime() }}</p>
+      </div>
+
+      <div class="details-box">
+        <h3 class="detail-label">Rating</h3>
+        <p class="detail-value">{{ movieDetail()!.voteAverage | number:'1.1-1' }}</p>
+        <p class="detail-sub">({{ movieDetail()!.voteCount }} votes)</p>
+      </div>
+
+      <div class="details-box">
+        <h3 class="detail-label">Genres</h3>
+        <div class="genres-list">
+          <span class="genre-item" *ngFor="let genre of movieDetail()!.genres">
+            {{ genre.name }}
+          </span>
+        </div>
+      </div>
+
+      <div class="details-box">
+        <h3 class="detail-label">Actors</h3>
+        <ul class="cast-list">
+          <li *ngFor="let member of movieDetail()!.castMembers | slice:0:5">
+            {{ member.name }} ({{ member.character }})
+          </li>
+        </ul>
+      </div>
+
+      <div class="details-box">
+        <h3 class="detail-label">Crew</h3>
+        <ul class="crew-list">
+          <li *ngFor="let member of movieDetail()!.crewMembers | slice:0:3;">
+            {{ member.name }} ({{ member.job }})
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <section class="recommendations-section">
+      <h2 class="section-title">Recommended Movies</h2>
+      <div *ngIf="recommendations().length > 0; else noRecommendations" class="recommendations-grid">
+        <div class="recommendation-card" 
+            *ngFor="let rec of recommendations();"
+            (click)="navigateToDetail(rec.id)"> <div class="rec-poster-container">
+            <img [src]="getRecPosterUrl(rec)" [alt]="rec.title" class="rec-poster-img">
+        </div>
+        <p class="rec-title">{{ rec.title }}</p>
+        <p class="rec-year">{{ rec.releaseDate | date:'yyyy' }}</p>
+        </div>
+      </div>
+      <ng-template #noRecommendations>
+        <p class="text-gray-500">No recommendations available for this movie.</p>
+      </ng-template>
+    </section>
+  </div>
+</main>

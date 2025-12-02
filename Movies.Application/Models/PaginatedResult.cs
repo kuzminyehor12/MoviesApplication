@@ -2,7 +2,7 @@ namespace Movies.Application.Models;
 
 public class PaginatedResult<T>
 {
-    private const int DefaultPageSize = 20;
+    public const int DefaultPageSize = 20;
     
     public required IReadOnlyCollection<T>? Results { get; init; }
     

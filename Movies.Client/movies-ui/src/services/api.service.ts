@@ -5,6 +5,7 @@ import { PaginatedResult } from '../models/paginated-result';
 import { Movie } from '../models/movie';
 import { Suggestion } from '../models/suggestion';
 import { environment } from '../environment';
+import { MovieExtended } from '../models/movie-extended';
 
 @Injectable({
   providedIn: 'root',
@@ -21,7 +22,7 @@ export class ApiService {
   ): Observable<PaginatedResult<Movie>> {
     let params = new HttpParams()
       .set('query', query)
-      .set('page', pageNumber.toString());
+      .set('pageNumber', pageNumber.toString());
 
     return this.http.get<PaginatedResult<Movie>>(`${this.baseUrl}search/${searchType}`, { params });
   }
@@ -29,6 +30,18 @@ export class ApiService {
   getSuggestions(input: string): Observable<Suggestion[]> {
     return this.http.get<Suggestion[]>(`${this.baseUrl}suggestions`, {
       params: new HttpParams().set('query', input)
+    });
+  }
+
+  getRecommendations(movieId: number): Observable<Movie[]> {
+    return this.http.get<Movie[]>(`${this.baseUrl}recommendations`, {
+      params: new HttpParams().set('movieId', movieId)
+    });
+  }
+
+   getMovieExtended(movieId: number): Observable<MovieExtended> {
+    return this.http.get<MovieExtended>(`${this.baseUrl}movies`, {
+      params: new HttpParams().set('movieId', movieId)
     });
   }
 }

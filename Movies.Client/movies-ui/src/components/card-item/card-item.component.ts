@@ -2,6 +2,8 @@ import { Component, Input, OnInit, inject, ChangeDetectorRef } from '@angular/co
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Movie } from '../../models/movie';
+import { environment } from '../../environment';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'movies-card-item', 
@@ -14,13 +16,12 @@ export class CardItemComponent implements OnInit {
   @Input({ required: true }) movie!: Movie;
 
   private http = inject(HttpClient);
-  private cdr = inject(ChangeDetectorRef); 
+  private cdr = inject(ChangeDetectorRef);
+  private router = inject(Router); 
   
   private readonly tmdbBaseUrl = 'https://image.tmdb.org/t/p/'; 
   
   private readonly posterSizes = ['w500', 'w342', 'w185']; 
-  
-  private readonly omdbApiKey = 'API_KEY'; 
   
   moviePosterUrl: string = '';
   private currentSizeIndex: number = 0;
@@ -32,6 +33,10 @@ export class CardItemComponent implements OnInit {
   
   private buildImageUrl(size: string, path: string): string {
     return `${this.tmdbBaseUrl}${size}${path}`;
+  }
+
+  navigateToDetail(): void {
+    this.router.navigate(['/movie', this.movie.id]); 
   }
 
   handleImageError(): void {
@@ -50,7 +55,7 @@ export class CardItemComponent implements OnInit {
     
     this.moviePosterUrl = ''; 
     console.error(`[${this.movie.title}] Poster failed after exhausting all options.`);
-    this.cdr.detectChanges(); // Force update if giving up
+    this.cdr.detectChanges();
   }
   
   private attemptOmdbFallback(): void {
@@ -62,7 +67,7 @@ export class CardItemComponent implements OnInit {
       return;
     }
 
-    const omdbUrl = `https://www.omdbapi.com/?i=${this.movie.imdbId}&apikey=${this.omdbApiKey}`;
+    const omdbUrl = `https://www.omdbapi.com/?i=${this.movie.imdbId}&apikey=${environment.omdbApiKey}`;
 
     this.http.get<{ Poster: string }>(omdbUrl).subscribe({
       next: (response) => {
@@ -83,11 +88,11 @@ export class CardItemComponent implements OnInit {
     });
   }
 
-  getReleaseYear(): string {
+  getReleaseYear(): number | NotAssigned {
     if (this.movie.releaseDate) {
       const date = new Date(this.movie.releaseDate);
       if (!isNaN(date.getFullYear())) {
-        return date.getFullYear().toString();
+        return date.getFullYear();
       }
     }
     return 'N/A';
